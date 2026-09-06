@@ -1,0 +1,14 @@
+{
+  "name": "Gael Valdivieso",
+  "short_name": "Gael Valdivieso",
+  "description": "AI automation consultant — I ship AI systems that pay for themselves.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#0C0D12",
+  "theme_color": "#0C0D12",
+  "icons": [
+    { "src": "/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
