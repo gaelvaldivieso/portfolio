@@ -3,22 +3,22 @@
   <rect x="0" y="0" width="1200" height="6" fill="#FF5B1A"/>
 
   <text x="80" y="112" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
-        font-weight="700" font-size="20" letter-spacing="4" fill="#A6A395">GAEL VALDIVIESO — AI AUTOMATION CONSULTANT</text>
+        font-weight="700" font-size="20" letter-spacing="4" fill="#A6A395">GAEL VALDIVIESO — AI &amp; AUTOMATION CONSULTANT</text>
 
-  <text x="76" y="250" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
-        font-weight="700" font-size="86" fill="#F3F1EA">I ship AI systems that</text>
-  <text x="76" y="352" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
-        font-weight="700" font-size="86" fill="#FF5B1A">pay for themselves.</text>
+  <text x="76" y="236" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-weight="700" font-size="74" fill="#F3F1EA">I build automations that</text>
+  <text x="76" y="326" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-weight="700" font-size="74" fill="#FF5B1A">real employees use every day.</text>
 
   <g font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" fill="#F3F1EA">
-    <text x="80" y="486" font-weight="700" font-size="40">$13K/yr</text>
-    <text x="80" y="524" font-size="20" fill="#A6A395">role replaced</text>
+    <text x="80" y="470" font-weight="700" font-size="40">&gt;80%</text>
+    <text x="80" y="508" font-size="20" fill="#A6A395">faster to log a maintenance request</text>
 
-    <text x="360" y="486" font-weight="700" font-size="40">~80 h/mo</text>
-    <text x="360" y="524" font-size="20" fill="#A6A395">work automated</text>
+    <text x="470" y="470" font-weight="700" font-size="40">~4 h/day</text>
+    <text x="470" y="508" font-size="20" fill="#A6A395">of manual reporting eliminated</text>
 
-    <text x="660" y="486" font-weight="700" font-size="40">20%</text>
-    <text x="660" y="524" font-size="20" fill="#A6A395">factory cost cut</text>
+    <text x="840" y="470" font-weight="700" font-size="40">5,199 / 0</text>
+    <text x="840" y="508" font-size="20" fill="#A6A395">records processed / errors</text>
   </g>
 
   <line x1="80" y1="566" x2="1120" y2="566" stroke="#2C2F3C" stroke-width="1"/>

@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gael Valdivieso · AI systems that pay for themselves</title>
-<meta name="description" content="Gael Valdivieso builds AI systems that pay for themselves, with real clients and measured ROI. Final-year Engineering &amp; Management student, University of Exeter.">
-<link rel="canonical" href="https://gaelvaldivieso.com/">
+<title>Gael Valdivieso · AI &amp; automation consultant</title>
+<meta name="description" content="Final-year Engineering and Management student (University of Exeter) and founder of Gael AI Consulting. AI-assisted maintenance app in daily use at a printing and packaging plant; ~4 hours a day of manual reporting eliminated at FedEx, official representative in Ecuador (Grupo Entregas).">
+<link rel="canonical" href="https://www.gaelvaldivieso.com/">
 <meta name="author" content="Gael Valdivieso">
 <meta name="theme-color" content="#0C0D12">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Gael Valdivieso">
-<meta property="og:url" content="https://gaelvaldivieso.com/">
-<meta property="og:title" content="Gael Valdivieso · AI systems that pay for themselves">
-<meta property="og:description" content="AI automation consultant with real, paid deployments in Ecuador. $13K/yr role replaced, ~80 h/mo automated, 20% cost cut on a factory line.">
-<meta property="og:image" content="https://gaelvaldivieso.com/og.png">
+<meta property="og:url" content="https://www.gaelvaldivieso.com/">
+<meta property="og:title" content="Gael Valdivieso · AI &amp; automation consultant">
+<meta property="og:description" content="I build automations that real employees use every day, and I measure what they change. &gt;80% faster maintenance requests · ~4 h/day of manual reporting eliminated · 5,199 records, 0 errors.">
+<meta property="og:image" content="https://www.gaelvaldivieso.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Gael Valdivieso — I ship AI systems that pay for themselves.">
+<meta property="og:image:alt" content="Gael Valdivieso — I build automations that real employees use every day.">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Gael Valdivieso · AI systems that pay for themselves">
-<meta name="twitter:description" content="AI automation consultant with real, paid deployments in Ecuador. $13K/yr role replaced, ~80 h/mo automated, 20% cost cut on a factory line.">
-<meta name="twitter:image" content="https://gaelvaldivieso.com/og.png">
+<meta name="twitter:title" content="Gael Valdivieso · AI &amp; automation consultant">
+<meta name="twitter:description" content="I build automations that real employees use every day, and I measure what they change. &gt;80% faster maintenance requests · ~4 h/day of manual reporting eliminated · 5,199 records, 0 errors.">
+<meta name="twitter:image" content="https://www.gaelvaldivieso.com/og.png">
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
@@ -236,7 +236,7 @@ a{color:inherit}
 .case.alt .case-aside .idx,
 .case.alt .row .rk{color:var(--signal)}
 .case.alt .case-aside .tag{border-color:var(--signal);color:var(--signal)}
-.case.alt .note{
+.note{
   margin-top:1.4rem;padding:.9rem 1.1rem;
   border-left:2px solid var(--signal);
   background:var(--surface);
@@ -328,6 +328,28 @@ footer{
   display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;
 }
 
+/* ---------- case extras (client line, bullets, in-progress block, compact card) ---------- */
+.case-body .client{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-dim);margin-top:.6rem;
+}
+.row ul{margin:.25rem 0 0 1.1rem;color:var(--ink-dim)}
+.row li+li{margin-top:.35rem}
+.row li strong{color:var(--ink);font-weight:600}
+.note.wip{border-left-color:var(--accent);margin-top:1.6rem}
+.note.wip .rk{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.3rem}
+.note.wip .pill{margin-top:.8rem;border-color:var(--accent)}
+.note.wip .pill::before{background:var(--accent)}
+.case.minor{padding:clamp(1.8rem,5vh,3rem) 0}
+.case.minor .case-body h3{font-size:clamp(1.15rem,1rem + .6vw,1.45rem)}
+.case.minor .idx{font-size:clamp(2rem,1.6rem + 2vw,3rem)}
+
+/* ---------- SKILLS ---------- */
+.skills{border-top:1px solid var(--hair);padding:clamp(2rem,5vh,3rem) 0;display:flex;flex-direction:column;gap:1.6rem}
+.skill-group .eyebrow{display:block;margin-bottom:.6rem}
+.skill-group .stack-grid{border-top:0;padding:0}
+
 /* ---------- reveal animation ---------- */
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.6,.2,1),transform .7s cubic-bezier(.2,.6,.2,1)}
 .reveal.in{opacity:1;transform:none}
@@ -357,50 +379,65 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--focus);outline-offset
 
   <!-- HERO -->
   <section class="hero">
-    <span class="eyebrow reveal">Gael Valdivieso · AI Automation Consultant</span>
-    <h1 class="reveal">I ship AI systems that <span class="hl">pay for themselves</span>. Not slide decks.</h1>
-    <p class="sub reveal">Final-year Engineering &amp; Management student at the University of Exeter, graduating July 2027, and founder of <strong>Cresco</strong>, an independent automation consultancy with real, paid deployments in Ecuador.</p>
+    <span class="eyebrow reveal">Gael Valdivieso · AI &amp; automation consultant</span>
+    <h1 class="reveal">I build automations that real employees <span class="hl">use every day</span> — and I measure what they change.</h1>
+    <p class="sub reveal">Final-year Engineering and Management student at the University of Exeter and founder of <strong>Gael AI Consulting</strong>. Replaced a factory's paper maintenance process with an AI-assisted app used every day, then sold the client the next phase. Before that, automated reporting at <strong>FedEx, official representative in Ecuador (Grupo Entregas)</strong>, saving ~4 hours of manual work a day.</p>
     <div class="cta-row reveal">
       <a class="btn btn-primary" href="#contact">Let's talk →</a>
       <a class="btn btn-ghost" href="#work">See the work</a>
     </div>
 
     <div class="stat-strip">
-      <div class="stat reveal"><div class="n">5</div><div class="l">shipped projects, real clients</div></div>
-      <div class="stat reveal"><div class="n">$13K<span style="font-size:.6em">/yr</span></div><div class="l">role not backfilled, thanks to the system</div></div>
-      <div class="stat reveal"><div class="n">~80<span style="font-size:.6em">h/mo</span></div><div class="l">manual data work automated away</div></div>
-      <div class="stat reveal"><div class="n">20%</div><div class="l">operating cost cut on a factory line</div></div>
+      <div class="stat reveal"><div class="n">&gt;80%</div><div class="l">faster to log a maintenance request with AI</div></div>
+      <div class="stat reveal"><div class="n">~4<span style="font-size:.6em"> h/day</span></div><div class="l">of manual reporting eliminated</div></div>
+      <div class="stat reveal"><div class="n">5,199<span style="font-size:.6em"> / 0</span></div><div class="l">records processed, errors — first test with real data</div></div>
+      <div class="stat reveal"><div class="n">1<span style="font-size:.6em"> role</span></div><div class="l">vacant role made unnecessary by an AI-assisted app</div></div>
     </div>
   </section>
 
   <!-- WORK -->
   <section id="work">
     <div class="sec-head">
-      <span class="eyebrow reveal">Selected work</span>
-      <h2 class="reveal">Case files</h2>
-      <span class="count reveal">01 – 05 · ordered by impact</span>
+      <span class="eyebrow reveal">Case studies</span>
+      <h2 class="reveal">What I built, and what it changed</h2>
+      <span class="count reveal">01 – 04 · result first</span>
     </div>
 
     <!-- CASE 1 -->
     <article class="case reveal">
       <div class="case-aside">
         <div class="idx">01</div>
-        <span class="tag">AI-assisted platform · in production</span>
+        <span class="tag">AI-assisted app · in production</span>
         <div class="metrics">
-          <div class="metric"><div class="mn">$13,000/yr</div><div class="ml">position cost removed</div></div>
-          <div class="metric"><div class="mn">~13×</div><div class="ml">ROI over project fee</div></div>
-          <div class="metric"><div class="mn">2 months</div><div class="ml">live and still running</div></div>
+          <div class="metric"><div class="mn">&gt;80%</div><div class="ml">faster to log a maintenance request</div></div>
+          <div class="metric"><div class="mn">1 role</div><div class="ml">vacant coordinator role made unnecessary</div></div>
+          <div class="metric"><div class="mn">304</div><div class="ml">machines in the live catalogue</div></div>
         </div>
       </div>
       <div class="case-body">
-        <h3>AI-Assisted Maintenance Platform: Imprenta Mariscal</h3>
+        <h3>AI maintenance platform for a printing and packaging plant</h3>
+        <div class="client">Gael AI Consulting · Jul 2026 – Present</div>
         <div class="rows">
-          <div class="row"><div class="rk">Problem</div><p>The person responsible for maintenance (tracking, reporting, staying on top of everything) resigned, leaving a lot of loose operational threads with no owner.</p></div>
-          <div class="row"><div class="rk">Solution</div><p>I built a maintenance request-tracking PWA (Next.js, FileMaker Data API, Supabase) with generative AI wired into four real friction points: photo-based damage classification, voice-note transcription and cleanup, structured close-out report extraction, and quote/PDF data extraction. All AI calls use structured outputs (JSON Schema) to guarantee parseable results, with a human reviewing and confirming every output. No autonomous agent, no memory between calls: targeted AI inside a deterministic app that also handles routing, notifications, and sync.</p></div>
-          <div class="row"><div class="rk">Impact</div><p>The factory has run its maintenance workflow for <strong>two months in production</strong> without backfilling the vacant coordination role, avoiding roughly <strong>$13,000/yr</strong> in salary cost, about <strong>13× ROI</strong> on what I charged to build it.</p></div>
+          <div class="row"><div class="rk">Result</div><p><strong>Replaced a vacant maintenance-coordinator role.</strong> Logging a maintenance request is <strong>&gt;80% faster</strong>. Used every day by the plant manager and the technician.</p></div>
+          <div class="row"><div class="rk">Problem</div><p>Corrective maintenance at a ~550-employee printing and packaging plant (304 machines) ran on paper.</p></div>
+          <div class="row"><div class="rk">What I built</div><p>An installable web app (PWA) covering the whole workflow: <strong>request → diagnosis → quotation → approval → resolution</strong>. Role-based login, device revocation, role-targeted push notifications and self-updating deployments.</p></div>
+          <div class="row"><div class="rk">How it works</div>
+            <ul>
+              <li><strong>Voice dictation</strong> with automatic text clean-up.</li>
+              <li><strong>Photo analysis</strong> that suggests each request's priority and classification.</li>
+              <li><strong>Voice-dictated closure reports</strong> turned into structured data, with automatic time tracking and a formatted closure email.</li>
+              <li>Connected to the company's legacy <strong>FileMaker ERP</strong>: live 304-machine catalogue, two-way sync of requests, and an offline queue with automatic retry for unreliable plant connectivity.</li>
+            </ul>
+          </div>
+          <div class="row"><div class="rk">Business side</div><p>Scoped, priced and sold a phased digitisation roadmap. <strong>Phase 1 approved by the client in Sep 2026.</strong></p></div>
+        </div>
+        <div class="note wip">
+          <div class="rk">In progress</div>
+          <p>Automated supplier-quote intake: inbound emails are verified, AI extracts amount, currency and terms, quotes are matched to the right machine and unmatched ones flagged for review.</p>
+          <span class="pill">Built and tested · deployment in progress</span>
         </div>
         <div class="stackline">
-          <span class="chip">Next.js 16</span><span class="chip">FileMaker Data API</span><span class="chip">Supabase Auth + RLS</span><span class="chip">OpenAI gpt-4o-mini</span><span class="chip">gpt-4o-transcribe</span><span class="chip">Structured Outputs (JSON Schema)</span><span class="chip">Resend</span><span class="chip">Web Push</span><span class="chip">PWA</span>
+          <span class="chip">Next.js</span><span class="chip">React</span><span class="chip">TypeScript</span><span class="chip">Tailwind CSS</span><span class="chip">Supabase (Auth, Postgres, RLS)</span><span class="chip">FileMaker Data API</span><span class="chip">OpenAI (speech-to-text, vision, extraction)</span><span class="chip">Resend</span><span class="chip">Web Push</span><span class="chip">Vercel</span>
         </div>
       </div>
     </article>
@@ -409,22 +446,31 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--focus);outline-offset
     <article class="case reveal">
       <div class="case-aside">
         <div class="idx">02</div>
-        <span class="tag">Full web app · daily use</span>
+        <span class="tag">Automated reporting · used daily</span>
         <div class="metrics">
-          <div class="metric"><div class="mn">Real-time</div><div class="ml">operational answers</div></div>
-          <div class="metric"><div class="mn">Per-branch</div><div class="ml">access, enforced by RLS</div></div>
-          <div class="metric"><div class="mn">0</div><div class="ml">manual Excel reviews left</div></div>
+          <div class="metric"><div class="mn">~4 h/day</div><div class="ml">of manual reporting eliminated</div></div>
+          <div class="metric"><div class="mn">5,199 / 0</div><div class="ml">real records processed / errors</div></div>
+          <div class="metric"><div class="mn">39</div><div class="ml">branches with daily visibility</div></div>
         </div>
       </div>
       <div class="case-body">
-        <h3>Torre de Control: Grupo Entregas Logistics, Ecuador</h3>
+        <h3>Operations control tower for a national delivery network</h3>
+        <div class="client">FedEx, official representative in Ecuador (Grupo Entregas) · Jun – Jul 2026</div>
         <div class="rows">
-          <div class="row"><div class="rk">Problem</div><p>The operation delivering bank cards had no real-time visibility into which shipments were stuck. Someone had to open every delivery point's daily Excel ("Punto CLON") by hand and scan colour-coded pivot sheets for trouble.</p></div>
-          <div class="row"><div class="rk">Solution</div><p>I built a full operational web panel (not an Excel sheet or a no-code dashboard) that answers, live: is the operation healthy today? Which shipments need follow-up right now? Which points are worst? A shipment is flagged <strong>at risk</strong> automatically when it goes 2+ days with no status change, or never left for delivery.</p></div>
-          <div class="row"><div class="rk">Impact</div><p>Replaces the daily manual Excel review per delivery point. Access is segmented by security (<strong>Row Level Security</strong>) instead of emailing the whole sheet to everyone. In real daily use.</p></div>
+          <div class="row"><div class="rk">Result</div><p><strong>Eliminated ~4 hours of manual reporting a day.</strong> Management now has daily visibility of at-risk and delayed shipments across a <strong>39-branch network</strong>. Used every day since launch.</p></div>
+          <div class="row"><div class="rk">Problem</div><p>An office employee consolidated the daily shipment report by hand.</p></div>
+          <div class="row"><div class="rk">What I built</div><p>First, <strong>9 VBA tools</strong> that cut the report to a few clicks. Then a fully automatic <strong>control tower</strong>: the report arrives by email and is ingested automatically, validated before any write, de-duplicated and logged. It includes a KPI dashboard, an alert centre, risk-sorted shipment tracking with full per-shipment history, and 30-day trends by branch.</p></div>
+          <div class="row"><div class="rk">How it works</div>
+            <ul>
+              <li><strong>5,199 real shipment records</strong> processed with <strong>zero errors</strong> in the first test with real data.</li>
+              <li>Branches detected and created automatically.</li>
+              <li><strong>11 users in 2 roles</strong>; each branch sees only its own data.</li>
+              <li>Plus a Power BI monitoring dashboard (Power Query, DAX, Row-Level Security).</li>
+            </ul>
+          </div>
         </div>
         <div class="stackline">
-          <span class="chip">Next.js 16</span><span class="chip">TypeScript</span><span class="chip">Tailwind v4</span><span class="chip">shadcn/ui</span><span class="chip">Supabase · Postgres</span><span class="chip">Auth + RLS</span><span class="chip">Recharts</span><span class="chip">exceljs</span><span class="chip">Cloudflare Email Routing</span><span class="chip">Cloudflare Worker (own code)</span><span class="chip">Vercel</span><span class="chip">n8n (evaluated, rejected)</span>
+          <span class="chip">Excel / VBA</span><span class="chip">Next.js</span><span class="chip">TypeScript</span><span class="chip">Supabase / Postgres (Row-Level Security)</span><span class="chip">Cloudflare Workers (email ingestion)</span><span class="chip">Recharts</span><span class="chip">Vercel</span><span class="chip">Power BI</span>
         </div>
       </div>
     </article>
@@ -433,104 +479,97 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--focus);outline-offset
     <article class="case reveal">
       <div class="case-aside">
         <div class="idx">03</div>
-        <span class="tag">Guided assistant · in production</span>
+        <span class="tag">Guided web app · in use</span>
         <div class="metrics">
-          <div class="metric"><div class="mn">4 banks</div><div class="ml">rule sets unified</div></div>
-          <div class="metric"><div class="mn">18 / 18</div><div class="ml">rule combinations tested</div></div>
-          <div class="metric"><div class="mn">1–3</div><div class="ml">questions to a full checklist</div></div>
+          <div class="metric"><div class="mn">4</div><div class="ml">bank clients covered</div></div>
+          <div class="metric"><div class="mn">17</div><div class="ml">delivery rules encoded</div></div>
         </div>
       </div>
       <div class="case-body">
-        <h3>Delivery Assistant: Digital Field Instructions</h3>
+        <h3>Delivery guide app for bank-card couriers</h3>
+        <div class="client">FedEx, official representative in Ecuador (Grupo Entregas) · Jun – Jul 2026</div>
         <div class="rows">
-          <div class="row"><div class="rk">Problem</div><p>Couriers delivering cards for four different banking clients (Banco Pacífico, Produbanco, Banco Bolivariano, Cooperativa JEP) had to memorise a long physical manual with different rules per bank: which documents to request, which signatures, which critical warnings.</p></div>
-          <div class="row"><div class="rk">Solution</div><p>A step-by-step assistant, built as one self-contained HTML/CSS/JS file with no external libraries, that guides the courier through 1–3 simple questions and produces the exact checklist: documents, required signatures, warnings (e.g. <strong>"deliver to the account holder only"</strong>), and what to upload to internal systems. All business logic came from the company's real manual, nothing invented. Where the original manual was ambiguous, the output says <strong>"verify in manual"</strong> instead of guessing.</p></div>
-          <div class="row"><div class="rk">Impact</div><p>Validated against all 18 possible rule combinations. Now in active use by couriers across all 4 banking accounts and all 39 delivery locations.</p></div>
+          <div class="row"><div class="rk">Result</div><p><strong>Couriers across Ecuador no longer need to call the office</strong> to ask how to deliver a bank card.</p></div>
+          <div class="row"><div class="rk">Problem</div><p>There was no written guide for bank-card deliveries; couriers had to remember the rules of each bank.</p></div>
+          <div class="row"><div class="rk">What I built</div><p>The first guide: a step-by-step web app covering <strong>4 bank clients</strong>. The courier answers a few questions (delivery type, product, recipient) and gets the exact documents and warnings required, encoded as <strong>17 delivery rules</strong>.</p></div>
         </div>
-        <span class="pill">In production · 4 banking accounts · 39 locations</span>
       </div>
     </article>
 
-    <!-- CASE 4 -->
-    <article class="case reveal">
+    <!-- CASE 4 (compact) -->
+    <article class="case alt minor reveal">
       <div class="case-aside">
         <div class="idx">04</div>
-        <span class="tag">VBA automation · in production</span>
+        <span class="tag">Personal project · retired</span>
         <div class="metrics">
-          <div class="metric"><div class="mn">~80 h/mo</div><div class="ml">of one person's manual work removed</div></div>
-          <div class="metric"><div class="mn">1 macro</div><div class="ml">replaces the whole cleanup step</div></div>
+          <div class="metric"><div class="mn">341</div><div class="ml">openings tracked</div></div>
+          <div class="metric"><div class="mn">250</div><div class="ml">companies</div></div>
         </div>
       </div>
       <div class="case-body">
-        <h3>Excel Data Cleaning Automation: Grupo Entregas</h3>
+        <h3>Job-search automation pipeline</h3>
+        <div class="client">Personal project · Sep 2026</div>
         <div class="rows">
-          <div class="row"><div class="rk">Problem</div><p>A person manually cleaned Excel sheets before they entered the downstream process: repetitive, slow, and error-prone.</p></div>
-          <div class="row"><div class="rk">Solution</div><p>I automated the whole cleanup with a <strong>VBA macro</strong>.</p></div>
-          <div class="row"><div class="rk">Impact</div><p>Saves roughly <strong>80 hours a month</strong> of one person's manual work.</p></div>
+          <div class="row"><div class="rk">Result</div><p>Tracked <strong>341 openings across 250 companies</strong> automatically, with a daily email digest instead of checking job boards by hand.</p></div>
+          <div class="row"><div class="rk">What I built</div><p>A scheduled Python pipeline that classified my application emails (read-only Gmail), pulled openings from job APIs and company job boards (Greenhouse, Lever, Ashby), de-duplicated them and refreshed every 3 hours, with a dashboard on Vercel.</p></div>
         </div>
-      </div>
-    </article>
-
-    <!-- CASE 5 -->
-    <article class="case alt reveal">
-      <div class="case-aside">
-        <div class="idx">05</div>
-        <span class="tag">Process diagnosis &amp; operational consulting</span>
-        <div class="metrics">
-          <div class="metric"><div class="mn">20%</div><div class="ml">cost reduction</div></div>
-          <div class="metric"><div class="mn">24 h</div><div class="ml">faster delivery time</div></div>
-          <div class="metric"><div class="mn">~2 months</div><div class="ml">project duration</div></div>
+        <span class="pill">Retired · since replaced</span>
+        <div class="stackline">
+          <span class="chip">Python</span><span class="chip">Gmail API</span><span class="chip">REST APIs</span><span class="chip">GitHub Actions</span><span class="chip">Vercel</span>
         </div>
-      </div>
-      <div class="case-body">
-        <h3>Operations Bottleneck Diagnosis: Imprenta Mariscal (Printing)</h3>
-        <div class="rows">
-          <div class="row"><div class="rk">Problem</div><p>One machine had been failing recurrently without the operator reporting it: a small-looking bottleneck with disproportionate impact across the whole chain.</p></div>
-          <div class="row"><div class="rk">Method</div><p>I mapped the entire process from sales to finished product leaving the factory, using a <strong>Theory of Constraints</strong> approach under my manager's guidance. That's how the small bottleneck's true, much larger impact became visible.</p></div>
-          <div class="row"><div class="rk">Recommendation</div><p>Invest in a second machine to speed the process.</p></div>
-          <div class="row"><div class="rk">Impact</div><p><strong>20% cost reduction</strong> and a <strong>24-hour</strong> improvement in delivery time.</p></div>
-        </div>
-        <div class="note">This engagement was operations and process consulting, not AI automation. Different discipline, same instinct: find the constraint, quantify it, fix it.</div>
       </div>
     </article>
   </section>
 
-  <!-- STACK -->
-  <section id="stack">
+  <!-- SKILLS -->
+  <section id="skills">
     <div class="sec-head">
-      <span class="eyebrow reveal">Toolbox</span>
-      <h2 class="reveal">Tools I work with</h2>
+      <span class="eyebrow reveal">Skills</span>
+      <h2 class="reveal">What I work with</h2>
     </div>
-    <div class="stack-grid reveal">
-      <span class="tool">Claude / Claude Code</span>
-      <span class="tool">Next.js</span>
-      <span class="tool">TypeScript</span>
-      <span class="tool">Python</span>
-      <span class="tool">Supabase</span>
-      <span class="tool">VBA</span>
-      <span class="tool">Cloudflare Workers</span>
-      <span class="tool">Tailwind CSS</span>
-      <span class="tool">Advanced Excel</span>
-      <span class="tool muted">n8n (evaluated)</span>
+    <div class="skills reveal">
+      <div class="skill-group">
+        <span class="eyebrow">Applied AI</span>
+        <div class="stack-grid">
+          <span class="tool">Speech-to-text</span><span class="tool">Vision classification</span><span class="tool">Document data extraction</span><span class="tool">LLM tool calling (OpenAI, Gemini)</span><span class="tool">AI-assisted development (Claude Code)</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <span class="eyebrow">Automation &amp; development</span>
+        <div class="stack-grid">
+          <span class="tool">Python</span><span class="tool">TypeScript / Next.js / React</span><span class="tool">Supabase / Postgres</span><span class="tool">REST APIs &amp; webhooks</span><span class="tool">Cloudflare Workers</span><span class="tool">GitHub Actions</span><span class="tool">Vercel</span><span class="tool">Legacy ERP integration (FileMaker Data API)</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <span class="eyebrow">Data</span>
+        <div class="stack-grid">
+          <span class="tool">Advanced Excel (VBA)</span><span class="tool">Power BI (Power Query, DAX, Row-Level Security)</span><span class="tool">SQL</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <span class="eyebrow">Business</span>
+        <div class="stack-grid">
+          <span class="tool">Scoping and pricing projects</span><span class="tool">Business cases</span><span class="tool">Requirements gathering</span><span class="tool">Client management</span>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- ABOUT -->
+  <!-- BACKGROUND -->
   <section id="about">
     <div class="sec-head">
-      <span class="eyebrow reveal">About</span>
-      <h2 class="reveal">Who's behind this</h2>
+      <span class="eyebrow reveal">Background</span>
+      <h2 class="reveal">Operations first, then automation</h2>
     </div>
     <div class="about reveal">
       <div class="facts">
-        <div class="fact"><div class="fk">Study</div><div class="fv">Engineering &amp; Management, University of Exeter</div></div>
-        <div class="fact"><div class="fk">Graduating</div><div class="fv">July 2027 · predicted First Class</div></div>
-        <div class="fact"><div class="fk">Languages</div><div class="fv">Spanish (native) · English (fluent) · French (B1→B2)</div></div>
-        <div class="fact"><div class="fk">Work rights</div><div class="fv">French passport: full EU mobility, no sponsorship needed</div></div>
+        <div class="fact"><div class="fk">Education</div><div class="fv">BEng (Hons) Engineering and Management · University of Exeter, UK · 2024 – 2027</div></div>
+        <div class="fact"><div class="fk">Predicted</div><div class="fv">First Class Honours</div></div>
+        <div class="fact"><div class="fk">Languages</div><div class="fv">Spanish (native) · English (native/bilingual) · French (B1)</div></div>
       </div>
       <div>
-        <p>I'm a final-year Engineering &amp; Management student at Exeter, and in parallel I run <strong>Cresco</strong>, my own AI-automation consultancy, with real paid clients in Ecuador.</p>
-        <p>I'm looking for graduate roles at AI consultancies and startups in the UK and Europe: a place to accelerate my learning while I keep building the business alongside. The work above is what that looks like in practice: identify the manual bottleneck, quantify it, and ship the system that removes it.</p>
+        <p><strong>Process before automation.</strong> In 2025 I cut a packaging plant's folding-carton production cycle by <strong>24 hours</strong> by finding a machine bottleneck and leading senior management to invest in a second machine.</p>
+        <p><strong>Relevant coursework:</strong> Industry 4.0 · Modelling of Engineering Systems (Python) · Manufacturing Systems · Operations Management.</p>
       </div>
     </div>
   </section>
@@ -543,7 +582,6 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--focus);outline-offset
       <a href="mailto:valdiviesogael@gmail.com" id="email-link">valdiviesogael@gmail.com <span class="ar">↗</span></a>
       <button type="button" class="copy-link" id="copy-email" aria-label="Copy email address">copy <span class="copy-check" aria-hidden="true">✓</span></button>
       <a href="https://www.linkedin.com/in/gael-valdivieso" target="_blank" rel="noopener">linkedin.com/in/gael-valdivieso <span class="ar">↗</span></a>
-      <a href="https://wa.me/447754678020?text=Hi%20Gael%2C%20I%20found%20your%20portfolio%20and%20I%27d%20like%20to%20talk." target="_blank" rel="noopener">WhatsApp · +44 7754 678020 <span class="ar">↗</span></a>
     </div>
     <div class="cta-row reveal">
       <a class="btn btn-primary" href="mailto:valdiviesogael@gmail.com">Let's talk →</a>
@@ -591,7 +629,12 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--focus);outline-offset
       }
     });
   }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
-  items.forEach(function(el){ io.observe(el); });
+  // anything already on screen at load (the hero) shows immediately; the rest reveals on scroll
+  var vh = window.innerHeight;
+  items.forEach(function(el){
+    if(el.getBoundingClientRect().top < vh){ el.classList.add('in'); }
+    else { io.observe(el); }
+  });
 
   // copy email to clipboard, fallback for when mailto has no client configured
   var EMAIL = 'valdiviesogael@gmail.com';
