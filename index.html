@@ -35,10 +35,12 @@
 </head>
 <body>
 <style>
-/* styles.css — Portfolio v2 "Field". Fixed stage, five layers back-to-front:
-   L0 #field (WebGL) · L1 .atmos (glow + grain + vignette) · L2 .wm (watermark, per slide)
+/* styles.css — Portfolio v2 "Field". Continuous document, five layers back-to-front:
+   L0 #field (WebGL) · L1 .atmos (glow + grain + vignette) · L2 .wm (watermark, per section)
    · L3 .panel (content) · L4 chrome (.bar, #rail, .cur).
-   Every colour is a token on :root; palette switches set data-palette on the root element. */
+   Every colour is a token on :root. The palette rules below are read once by deck.js, which then
+   lerps the tokens from the scroll position and writes them inline on :root every frame
+   (so no CSS transitions on palette tokens anywhere). */
 
 /* ---------- tokens ---------- */
 :root{--g:#0A0C2A;--s:#14183F;--acc:#F5B942;--acc-ink:#0A0C2A;--ink:#F6F3EC;--dim:rgba(246,243,236,0.7);--hair:rgba(246,243,236,0.16);--hair-2:rgba(246,243,236,0.08);--scrim:rgba(10,12,42,0.66);--scrim-2:rgba(10,12,42,.84);--glow-a:rgba(245,185,66,.14);--glow-b:rgba(245,185,66,.07);--glow-a2:rgba(245,185,66,.32);--glow-b2:rgba(245,185,66,.16);--fa:#F5B942;--fb:#6E74C9;--falpha:0.55}
@@ -73,12 +75,12 @@
 
 /* ---------- base ---------- */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+html{overflow-x:hidden;overscroll-behavior-x:none;scroll-behavior:auto;-webkit-text-size-adjust:100%}
 body{
+  overflow-x:hidden;min-height:100vh;
   background:var(--g);color:var(--ink);
   font-family:var(--body);font-size:var(--fs-body);line-height:1.55;font-weight:400;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-  transition:background-color var(--pal-ms) var(--ease),color var(--pal-ms) var(--ease);
 }
 ::selection{background:var(--acc);color:var(--acc-ink)}
 a{color:inherit}
@@ -100,7 +102,6 @@ em{font-style:normal;color:var(--acc)}
   background:
     radial-gradient(120% 90% at 70% 10%,var(--glow-a) 0%,transparent 55%),
     radial-gradient(90% 70% at 10% 90%,var(--glow-b) 0%,transparent 60%);
-  transition:background var(--pal-ms) var(--ease);
 }
 .no-field .atmos::before{
   background:
@@ -122,9 +123,13 @@ em{font-style:normal;color:var(--acc)}
 }
 
 /* ---------- stage / slides ---------- */
-.stage{position:fixed;inset:0;z-index:3}
-.slide{position:absolute;inset:0;outline:none;overflow:hidden}
-.js .slide:not(:first-child):not(.is-active){visibility:hidden}
+/* Normal flow: the sections stack; each is at least one viewport tall and its content sets its height.
+   With the smoother on (.smooth, desktop + fine pointer), the stage is fixed and translated by the
+   lerped scroll position while body keeps the document height (set by deck.js from the stage's size),
+   so the native scrollbar, trackpad, keyboard and find-in-page keep working. */
+.stage{position:relative;z-index:3}
+.smooth .stage{position:fixed;top:0;left:0;width:100%;will-change:transform;backface-visibility:hidden}
+.slide{position:relative;min-height:100vh;min-height:100svh;outline:none;overflow:hidden;overflow:clip}
 
 /* L2 watermark: one per slide, parallax on .wm (glue), enter tween on .wm-in (glue) */
 .wm{
@@ -134,14 +139,13 @@ em{font-style:normal;color:var(--acc)}
 .wm-in{
   display:block;font-family:var(--display);font-weight:800;
   font-size:clamp(12rem,38vw,44rem);line-height:.8;letter-spacing:-.06em;
-  color:var(--ink);opacity:var(--wm-o);transition:color var(--pal-ms) var(--ease);
+  color:var(--ink);opacity:var(--wm-o);
 }
 .no-field .wm-in{opacity:.07}
 
-/* L3 content panel: the only scroll container */
+/* L3 content panel: plain block in the flow (no inner scrolling) */
 .panel{
-  position:relative;z-index:1;height:100%;overflow-y:auto;overflow-x:hidden;
-  overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:var(--hair) transparent;
+  position:relative;z-index:1;min-height:100vh;min-height:100svh;
   display:flex;flex-direction:column;
   padding-top:calc(var(--bar-h) + env(safe-area-inset-top,0px) + clamp(2rem,6vh,4rem));
   padding-bottom:calc(clamp(3.5rem,9vh,5.5rem) + env(safe-area-inset-bottom,0px));
@@ -198,17 +202,15 @@ p{color:var(--dim)}
 }
 /* soft fade so panel content scrolling under the bar stays legible (the bar itself stays transparent) */
 .bar::before{content:"";position:absolute;left:0;right:0;top:calc(-1 * env(safe-area-inset-top,0px));bottom:-28px;z-index:-1;pointer-events:none;
-  background:linear-gradient(to bottom,var(--g) 0,var(--g) calc(100% - 28px),var(--scrim) calc(100% - 12px),transparent 100%);transition:background var(--pal-ms) var(--ease)}
+  background:linear-gradient(to bottom,var(--g) 0,var(--g) calc(100% - 28px),var(--scrim) calc(100% - 12px),transparent 100%)}
 .bar > *{pointer-events:auto;min-width:0}
 .bar .who{white-space:nowrap}
 .segs{flex:1;display:flex;gap:3px;min-width:0;height:2px;align-self:center}
 .seg{position:relative;flex:1;height:2px;padding:0;background:var(--seg);cursor:pointer;transition:background-color .3s ease;will-change:transform}
 .seg::before{content:"";position:absolute;left:0;right:0;top:-21px;bottom:-21px}
-.seg::after{content:"";position:absolute;left:0;top:0;bottom:0;width:0;background:var(--acc)}
+.seg::after{content:"";position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--acc);transform-origin:0 50%;transform:scaleX(var(--fill,0))}
 .seg.visited{background:var(--dim)}
 .seg.active{background:var(--hair)}
-.seg.active::after{animation:segfill 1.1s linear both}
-@keyframes segfill{from{width:0}to{width:100%}}
 .lessons{white-space:nowrap;font-variant-numeric:tabular-nums;display:inline-block;transform-origin:50% 50%}
 .lessons b{color:var(--acc);font-weight:600}
 
@@ -241,7 +243,7 @@ p{color:var(--dim)}
 /* ---------- cover ---------- */
 .cover .inner{position:relative;isolation:isolate;display:grid;grid-template-columns:7fr 5fr;column-gap:clamp(1.5rem,5vw,5rem)}
 .cover .inner::before{content:"";position:absolute;z-index:-1;left:-3rem;top:-2.5rem;bottom:-3rem;width:calc(60% + 4.5rem);pointer-events:none;
-  background:radial-gradient(ellipse 50% 50% at 50% 50%,var(--scrim-2) 0%,var(--scrim-2) 48%,transparent 100%);transition:background var(--pal-ms) var(--ease)}
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,var(--scrim-2) 0%,var(--scrim-2) 48%,transparent 100%)}
 .no-field .cover .inner::before{display:none}
 .cover .inner > *{grid-column:1;min-width:0}
 .cover .inner > h1{grid-column:1 / -1}
@@ -266,7 +268,6 @@ p{color:var(--dim)}
 .scrim{
   position:relative;background:var(--scrim);border:1px solid var(--hair-2);
   padding:clamp(1.25rem,2.5vw,2.25rem);
-  transition:background-color var(--pal-ms) var(--ease);
 }
 /* solid scrim everywhere: backdrop-filter re-rasterised every frame while the field/palette moved */
 .scrim{background:var(--scrim-2)}
@@ -302,8 +303,10 @@ p{color:var(--dim)}
 .case .inner{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:clamp(1.5rem,5vw,5rem);align-items:start}
 .case .inner > *{min-width:0}
 .case .aside{position:sticky;top:calc(var(--bar-h) + env(safe-area-inset-top,0px) + 1rem);isolation:isolate}
+/* under the smoother, sticky cannot work inside the translated stage: deck.js emulates it with a transform */
+.smooth .case .aside{position:relative;top:auto;will-change:transform}
 .case .aside::before{content:"";position:absolute;z-index:-1;inset:-2.5rem -3rem -3rem;pointer-events:none;
-  background:radial-gradient(ellipse 50% 50% at 50% 50%,var(--scrim-2) 0%,var(--scrim-2) 46%,transparent 100%);transition:background var(--pal-ms) var(--ease)}
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,var(--scrim-2) 0%,var(--scrim-2) 46%,transparent 100%)}
 .no-field .case .aside::before{display:none}
 .idx{font-family:var(--display);font-weight:800;font-size:clamp(3.2rem,2rem + 4.6vw,6rem);line-height:1;color:var(--acc);letter-spacing:-.04em;text-shadow:0 2px 24px var(--scrim)}
 .tag{display:inline-block;margin-top:.8rem;font-family:var(--mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);border:1px solid var(--acc);padding:.32rem .55rem;background:var(--scrim)}
@@ -333,7 +336,6 @@ p{color:var(--dim)}
   grid-area:1/1;align-self:start;position:relative;min-width:0;
   background:var(--s);border:1px solid var(--hair);
   box-shadow:0 24px 60px -30px rgba(0,0,0,.7);
-  transition:background-color var(--pal-ms) var(--ease);
 }
 .js .layer.open{z-index:40 !important}
 .js .layers:has(.layer.open){display:flex;flex-direction:column;gap:.6rem;padding:0 !important}
@@ -556,7 +558,6 @@ details.file strong{color:var(--ink)}
 .reduced .atmos::after{opacity:.06}
 .reduced *,.reduced *::before,.reduced *::after{transition:none !important;animation:none !important}
 .reduced .seg.active{background:var(--acc)}
-.reduced .seg::after{display:none}
 .reduced .layers{display:flex;flex-direction:column;gap:.6rem;perspective:none;padding:0 !important}
 .reduced .layer{grid-area:auto;align-self:auto !important;margin:0 !important;box-shadow:none}
 .reduced .layer[data-state="locked"]{opacity:.45}
@@ -567,7 +568,6 @@ details.file strong{color:var(--ink)}
   .atmos::after{opacity:.06}
   *,*::before,*::after{transition:none !important;animation:none !important}
   .seg.active{background:var(--acc)}
-  .seg::after{display:none}
   .layers{display:flex;flex-direction:column;gap:.6rem;perspective:none;padding:0 !important}
   .layer{grid-area:auto;align-self:auto !important;margin:0 !important;box-shadow:none}
   .cur{display:none}
@@ -575,10 +575,6 @@ details.file strong{color:var(--ink)}
 .no-field .idx,.no-field .hook,.no-field .metric{text-shadow:none}
 </style>
 <noscript><style>
-html,body{height:auto;overflow:auto}
-.stage{position:static}
-.slide{position:relative;inset:auto;min-height:100vh;overflow:visible}
-.panel{height:auto;overflow:visible}
 #field,.atmos,.cur,.rail,.wm,.hint,.act,.lk .lst,.lk .lsum,.bar .lessons{display:none}
 .bar{position:sticky;top:0;background:var(--g)}
 .layers{display:flex;flex-direction:column;gap:.6rem;perspective:none}
@@ -613,14 +609,14 @@ html,body{height:auto;overflow:auto}
         <div class="promise" data-anim>
           <span><b>5</b> case files</span>
           <span><b>5</b> lessons to unlock</span>
-          <span><b>~4</b> min, one swipe at a time</span>
+          <span><b>~4</b> min, one scroll at a time</span>
         </div>
         <div class="cta-row" data-anim>
           <button type="button" class="btn btn-primary" data-go="1">Start ↓</button>
           <button type="button" class="btn btn-ghost" data-go="9">Skip to contact</button>
         </div>
       </div>
-      <div class="hint" data-anim><span>Swipe or press ↓</span><span class="chev"></span></div>
+      <div class="hint" data-anim><span>Scroll or press ↓</span><span class="chev"></span></div>
     </div>
   </section>
 
@@ -1334,7 +1330,8 @@ html,body{height:auto;overflow:auto}
     ptx: 0, pty: 0, px: 0, py: 0,
     kickAmp: 0, kickStart: -1, pulseStart: -1,
     colA: null, colB: null, fit: 1,
-    onVis: null, onResize: null
+    onVis: null, onResize: null,
+    shapeCache: null, scrubA: -1, scrubB: -1, dirty: false, tmpInk: null
   };
 
   /* ---------------- tiny tween engine ----------------
@@ -1426,8 +1423,9 @@ html,body{height:auto;overflow:auto}
     S.raf = global.requestAnimationFrame(frame);
     // Idle (no tween, kick, pulse or pointer motion): render every other frame (~30fps). The slow
     // rotation/breath is too gentle to show it, and it halves the GPU work behind the content.
-    var active = S.tweens.length || S.mixTween || S.kickStart >= 0 || S.pulseStart >= 0 ||
+    var active = S.tweens.length || S.mixTween || S.kickStart >= 0 || S.pulseStart >= 0 || S.dirty ||
       Math.abs(S.ptx - S.px) > 0.002 || Math.abs(S.pty - S.py) > 0.002;
+    S.dirty = false;
     if (!active) { S.skip = !S.skip; if (S.skip) return; } else S.skip = false;
     var dt = S.lastTs ? Math.min(0.05, (ts - S.lastTs) / 1000) : 0.016;
     S.lastTs = ts;
@@ -1564,8 +1562,12 @@ html,body{height:auto;overflow:auto}
       S.kickStart = -1; S.pulseStart = -1; S.userPaused = false;
       S.ready = true;
 
+      // cache every shape once (scrub swaps buffers from the cache, no per-frame generation)
+      S.shapeCache = SHAPES.map(function (fn) { var b = new Float32Array(count * 3); fn(b, count); return b; });
+      S.scrubA = -1; S.scrubB = -1; S.dirty = false;
+      S.tmpInk = new THREE.Color();
       // initial shape: scene 0 in both buffers
-      SHAPES[0](bufA, count); bufB.set(bufA);
+      bufA.set(S.shapeCache[0]); bufB.set(bufA);
       attrA.needsUpdate = true; attrB.needsUpdate = true;
       S.sceneIndex = 0;
 
@@ -1592,14 +1594,14 @@ html,body{height:auto;overflow:auto}
         SHAPES[index](S.bufA, S.count); S.bufB.set(S.bufA);
         S.attrA.needsUpdate = true; S.attrB.needsUpdate = true;
         S.uniforms.uMix.value = 0;
-        S.sceneIndex = index;
+        S.sceneIndex = index; S.scrubA = index; S.scrubB = -1;
         return;
       }
       if (S.morphTarget === index) return;                 // already heading there
       if (S.morphTarget < 0 && index === S.sceneIndex) return;
 
       if (S.mixTween) { killTween(S.mixTween); S.mixTween = null; freezeIntoA(); }
-      S.morphTarget = index;
+      S.morphTarget = index; S.scrubA = -1; S.scrubB = -1;
       SHAPES[index](S.bufB, S.count);
       S.attrB.needsUpdate = true;
       S.uniforms.uMix.value = 0;
@@ -1613,6 +1615,27 @@ html,body{height:auto;overflow:auto}
         S.morphTarget = -1;
         S.mixTween = null;
       });
+    },
+
+    /* Scroll scrub: buffers A/B hold shapes i and i+1 (from the cache), uMix = t directly, no tween.
+       pal (optional): {acc:[r,g,b], ink:[r,g,b]} 0..255 sRGB, applied immediately (kills the palette tween). */
+    setScrub: function (i, t, pal) {
+      if (!S.ready) return;
+      var n = SHAPES.length;
+      i = Math.max(0, Math.min(n - 1, i | 0));
+      var j = Math.min(n - 1, i + 1);
+      if (S.mixTween) { killTween(S.mixTween); S.mixTween = null; S.morphTarget = -1; }
+      if (S.scrubA !== i) { S.bufA.set(S.shapeCache[i]); S.attrA.needsUpdate = true; S.scrubA = i; S.sceneIndex = i; }
+      if (S.scrubB !== j) { S.bufB.set(S.shapeCache[j]); S.attrB.needsUpdate = true; S.scrubB = j; }
+      t = Math.max(0, Math.min(1, +t || 0));
+      if (S.uniforms.uMix.value !== t) { S.uniforms.uMix.value = t; S.dirty = true; }
+      if (pal && pal.acc && pal.ink) {
+        if (S.palTween) { killTween(S.palTween); S.palTween = null; }
+        S.colA.setRGB(pal.acc[0] / 255, pal.acc[1] / 255, pal.acc[2] / 255, THREE.SRGBColorSpace);
+        S.tmpInk.setRGB(pal.ink[0] / 255, pal.ink[1] / 255, pal.ink[2] / 255, THREE.SRGBColorSpace);
+        S.colB.copy(S.colA).lerp(S.tmpInk, 0.55);
+        S.dirty = true;
+      }
     },
 
     setPalette: function (p) {
@@ -1672,55 +1695,69 @@ html,body{height:auto;overflow:auto}
 })(typeof window !== 'undefined' ? window : this);
 </script>
 <script>
-/* deck.js — fixed-stage slide engine for the "Field" portfolio.
+/* deck.js — continuous smooth-scroll engine for the "Field" portfolio.
    Defines window.Deck. Requires GSAP 3 (global `gsap`) loaded before this file.
 
-   Deck.init({slides, reduced, onChange(i, dir), onUnlock(key), onSwipeVelocity(v)})
-   Deck.go(i, {force}) · Deck.next() · Deck.prev() · Deck.index · Deck.count
-   Deck.rebuild()  — re-split .lines headings (also runs on resize and on document.fonts.ready)
-   Deck.unlocked() — array of unlocked lesson keys
+   Model: the ten .slide sections sit in normal document flow and the NATIVE scroll position is the
+   source of truth (scrollbar, trackpad, keyboard, find-in-page all keep working). On desktop with a
+   fine pointer the fixed .stage is translated by a lerped copy of scrollY ("scroll-linked smoothing",
+   html.smooth) while body keeps the document height; on touch / reduced motion the document scrolls
+   natively with no transform. Everything else (field morph, palette, chrome, watermark parallax,
+   reveals) is scrubbed every frame from the single value getScroll().
+
+   Deck.init({slides, reduced, onScrub(i, t, pal), onEnter(i), onUnlock(key), onSwipeVelocity(v)})
+   Deck.go(i) · Deck.next() · Deck.prev() · Deck.scrollTo(y, opts) · Deck.index · Deck.progress
+   Deck.rebuild() · Deck.unlocked() · Deck.setWmOffset(x, y) · Deck.getScroll()
 */
 (function (window, document) {
   'use strict';
 
-  var LOCK = 700;         // ms: wheel/touch gesture lock + wheel re-arm floor (pointer clicks are never locked)
-  var OUT = 0.42;         // s: out animation (whole panel crossfades)
-  var IN = 0.7;           // s: in animation
-  var HAND = 0.16;        // s: handover — palette/field/watermark fire and the incoming content starts
-  var STAG_MAX = 0.3;     // s: cap on the total incoming stagger
-  var STAG = 0.04;        // s: stagger between incoming elements
-  var WHEEL_FIRE = 60;    // accumulated deltaY that fires a slide change
-  var WHEEL_QUIET = 4;    // |deltaY| below this counts as "near 0"
-  var QUIET_MS = 150;     // quiet time required before the wheel re-arms
-  var GESTURE_GAP = 200;  // ms without wheel events = new gesture (reset accumulator)
-  var EDGE_GRACE = 80;    // ms after the panel last scrolled before deltas count toward a slide change
-  var SWIPE_PX = 50;
-  var SWIPE_V = 0.5;      // px/ms
+  var LERP = 0.09;          // visual catch-up fraction per 60fps frame (smoother only)
+  var STEP = 0.9;           // keyboard step, in viewport heights
+  var GO_DUR = 1.2;         // s: programmatic scroll (anchors, [data-go], rail, keys)
+  var KEY_DUR = 1.0;        // s: keyboard step
+  var REVEAL_AT = 0.7;      // a section reveals when its top passes this fraction of the viewport
+  var IN = 0.9;             // s: reveal duration
+  var STAG = 0.05;          // s: stagger between revealed elements
+  var STAG_MAX = 0.35;      // s: cap on the total stagger
+  var WM_PAR = 0.25;        // watermark parallax (fraction of scroll speed)
+  var KICK_MIN = 140;       // normalised wheel delta that kicks the field
+  var KICK_GAP = 450;       // ms between kicks
+  var HASH_IDLE = 180;      // ms of scroll idle before the hash updates
   var STORE = 'gv-portfolio-lessons';
   var MAX_DONE_VISIBLE = 3;
+  var TOKENS = ['g', 's', 'acc', 'acc-ink', 'ink', 'dim', 'hair', 'hair-2', 'scrim', 'scrim-2',
+    'glow-a', 'glow-b', 'glow-a2', 'glow-b2', 'fa', 'fb', 'falpha'];
 
   var gsap = window.gsap;
   var html = document.documentElement;
 
   var slides = [];
-  var panels = [];
+  var n = 0;
   var reduced = false;
-  var onChange = null, onUnlock = null, onSwipeVelocity = null;
-  var index = 0;
+  var smooth = false;
+  var stage = null, barEl = null, segsEl = null, railEl = null;
+  var onScrub = null, onEnter = null, onUnlock = null, onSwipeVelocity = null;
+  var tops = [], maxScroll = 0, vh = 1, docH = 0;
+  var cur = 0, lastCur = -1, lastApplied = null, dirty = true;
+  var p = 0, idx = 0, active = 0;
+  var pals = [], curPal = {}, lastPalKey = '';
   var visited = {};
-  var locked = false, lockTimer = 0;
-  var tl = null;
-  var segsEl = null, railEl = null;
-  var lastInput = 'pointer';
-  var rebuildPending = false;
-  var lastWidth = 0;
+  var revealed = [];
+  var revealing = 0, rebuildPending = false, lastWidth = 0;
+  var wms = [], wmx = 0, wmy = 0, wmLast = [];
+  var asides = [];
+  var segFill = [];
+  var driver = null, driveY = 0, driveTarget = 0;
+  var hashTimer = 0, lastHash = '';
   var cases = [];
 
   /* ------------------------------------------------------------ utils */
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function toArray(list) { return Array.prototype.slice.call(list || []); }
-  function sign(n) { return n < 0 ? -1 : 1; }
   function now() { return (window.performance && performance.now) ? performance.now() : Date.now(); }
+  function smoothstep(t) { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); }
+  function scrollY() { return window.pageYOffset || html.scrollTop || document.body.scrollTop || 0; }
   function isEditable(el) {
     if (!el || !el.tagName) return false;
     var t = el.tagName;
@@ -1732,16 +1769,17 @@ html,body{height:auto;overflow:auto}
     if (t === 'BUTTON' || t === 'A' || t === 'SUMMARY') return true;
     return el.getAttribute && el.getAttribute('role') === 'button';
   }
+  function sectionOf(el) { while (el && !(el.classList && el.classList.contains('slide'))) el = el.parentNode; return el; }
 
   /* ------------------------------------------------------------ lesson store (v1 logic) */
   var unlocked = {};
   try { unlocked = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { unlocked = {}; }
   function saveStore() { try { localStorage.setItem(STORE, JSON.stringify(unlocked)); } catch (e) {} }
   function paintLessons() {
-    var n = Object.keys(unlocked).length;
+    var c = Object.keys(unlocked).length;
     var a = document.getElementById('lcount'), b = document.getElementById('lcount2');
-    if (a) a.textContent = n;
-    if (b) b.textContent = n;
+    if (a) a.textContent = c;
+    if (b) b.textContent = c;
     toArray(document.querySelectorAll('.tracker li[data-lesson]')).forEach(function (li) {
       li.classList.toggle('on', !!unlocked[li.getAttribute('data-lesson')]);
     });
@@ -1771,8 +1809,6 @@ html,body{height:auto;overflow:auto}
     })(el, []);
     return out;
   }
-
-  // Wrap a word span in clones of its inline ancestors (innermost first).
   function wrapInTags(span, tags) {
     var node = span;
     for (var i = tags.length - 1; i >= 0; i--) {
@@ -1782,8 +1818,6 @@ html,body{height:auto;overflow:auto}
     }
     return node;
   }
-
-  // Emit a run of tokens into a container, merging neighbours that share the same inline ancestors.
   function sameTags(a, b) {
     if (!a || !b || a.length !== b.length) return false;
     for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
@@ -1806,7 +1840,6 @@ html,body{height:auto;overflow:auto}
       else { lastTags = null; lastInner = null; }
     });
   }
-
   function splitLines(el) {
     if (!el._deckTokens) {
       el._deckTokens = tokenize(el);
@@ -1815,47 +1848,30 @@ html,body{height:auto;overflow:auto}
     }
     var tokens = el._deckTokens;
     if (!tokens.length) return;
-
-    // Pass 1: words only, measure wrap positions.
     el.innerHTML = '';
     var run = [];
-    var spans = [];
     tokens.forEach(function (tok) {
       if (tok.br) {
         if (run.length) { emitTokens(el, run); run = []; }
         el.appendChild(document.createElement('br'));
-        spans.push(null);
-      } else {
-        run.push(tok);
-      }
+      } else run.push(tok);
     });
     if (run.length) emitTokens(el, run);
-    spans = toArray(el.querySelectorAll('.w'));
-    var tops = spans.map(function (s) { return s.offsetTop; });
-
-    // Group into lines.
-    var lines = [];
-    var cur = [];
-    var lastTop = null;
-    var wi = 0;
+    var spans = toArray(el.querySelectorAll('.w'));
+    var tops2 = spans.map(function (s) { return s.offsetTop; });
+    var lines = [], curLine = [], lastTop = null, wi = 0;
     tokens.forEach(function (tok) {
       if (tok.br) {
-        if (cur.length) lines.push(cur);
-        cur = [];
-        lastTop = null;
+        if (curLine.length) lines.push(curLine);
+        curLine = []; lastTop = null;
         return;
       }
-      var top = tops[wi++];
-      if (lastTop !== null && Math.abs(top - lastTop) > 1) {
-        lines.push(cur);
-        cur = [];
-      }
-      cur.push(tok);
+      var top = tops2[wi++];
+      if (lastTop !== null && Math.abs(top - lastTop) > 1) { lines.push(curLine); curLine = []; }
+      curLine.push(tok);
       lastTop = top;
     });
-    if (cur.length) lines.push(cur);
-
-    // Pass 2: build line wrappers.
+    if (curLine.length) lines.push(curLine);
     el.innerHTML = '';
     lines.forEach(function (lineTokens) {
       var line = document.createElement('span');
@@ -1873,35 +1889,35 @@ html,body{height:auto;overflow:auto}
       el.appendChild(line);
     });
   }
-
   function rebuild() {
-    if (tl && tl.isActive()) { rebuildPending = true; return; }
+    if (revealing > 0) { rebuildPending = true; return; }
     rebuildPending = false;
     toArray(document.querySelectorAll('.slide .lines')).forEach(function (el) {
       try { splitLines(el); } catch (e) {}
+      // freshly built lines of a section that has not entered yet go back to their hidden pre-state
+      var s = sectionOf(el), k = slides.indexOf(s);
+      if (k >= 0 && !revealed[k] && gsap && !reduced) {
+        var ins = toArray(el.querySelectorAll('.line-in'));
+        if (ins.length) gsap.set(ins, { yPercent: 115 });
+      }
     });
+    measure();
   }
 
   /* ------------------------------------------------------------ animation targets */
-  // Returns ordered items: {el} for plain [data-anim], {lines:[...]} for .lines headings.
   function animItems(slide) {
     var items = [];
-    var nodes = toArray(slide.querySelectorAll('[data-anim], .lines'));
-    nodes.forEach(function (n) {
-      var isLines = n.classList.contains('lines');
-      if (isLines) {
-        // skip .lines nested inside another animated element (the parent moves it)
-        var p = n.parentNode;
-        while (p && p !== slide) {
-          if (p.hasAttribute && p.hasAttribute('data-anim')) return;
-          p = p.parentNode;
+    toArray(slide.querySelectorAll('[data-anim], .lines')).forEach(function (el) {
+      if (el.classList.contains('lines')) {
+        var q = el.parentNode;
+        while (q && q !== slide) {
+          if (q.hasAttribute && q.hasAttribute('data-anim')) return;
+          q = q.parentNode;
         }
-        var ins = toArray(n.querySelectorAll('.line-in'));
-        if (ins.length) items.push({ lines: ins, el: n });
-        else items.push({ el: n });
-      } else {
-        items.push({ el: n });
-      }
+        var ins = toArray(el.querySelectorAll('.line-in'));
+        if (ins.length) items.push({ lines: ins, el: el });
+        else items.push({ el: el });
+      } else items.push({ el: el });
     });
     return items;
   }
@@ -1911,21 +1927,140 @@ html,body{height:auto;overflow:auto}
     return { els: els, lines: lines };
   }
 
-  /* ------------------------------------------------------------ visibility */
-  // on: true = current slide, 'out' = still visible but leaving (crossfade), false = hidden.
-  function showSlide(s, on) {
-    var vis = on !== false;
-    s.style.visibility = vis ? 'visible' : 'hidden';
-    s.style.pointerEvents = on === true ? '' : 'none';
-    s.style.zIndex = on === true ? '3' : (vis ? '2' : '1');
-    s.setAttribute('aria-hidden', on === true ? 'false' : 'true');
-    s.classList.toggle('is-active', on === true);
+  /* ------------------------------------------------------------ reveal (once per section) */
+  function prestate(k) {
+    if (reduced || !gsap) return;
+    var f = flatEls(animItems(slides[k]));
+    if (f.els.length) gsap.set(f.els, { y: 32, opacity: 0 });
+    if (f.lines.length) gsap.set(f.lines, { yPercent: 115 });
+    var wi = slides[k].querySelector('.wm-in');
+    if (wi) gsap.set(wi, { y: 120, opacity: 0 });
   }
-  function isShown(s) { return s.style.visibility !== 'hidden' && (s.classList.contains('is-active') || s.style.visibility === 'visible'); }
-  function panelOf(s) { return s.querySelector('.panel') || s; }
-  function wmOf(s) { return s.querySelector('.wm'); }
-  function syncVisibility() {
-    slides.forEach(function (s, k) { showSlide(s, k === index); });
+  function reveal(k, animate) {
+    if (revealed[k]) return;
+    revealed[k] = true;
+    var s = slides[k];
+    var items = animItems(s);
+    var f = flatEls(items);
+    var wi = s.querySelector('.wm-in');
+    if (typeof onEnter === 'function') { try { onEnter(k, !!animate); } catch (e) {} }
+    if (!animate || reduced || !gsap) {
+      if (gsap) {
+        var all = f.els.concat(f.lines);
+        if (all.length) gsap.set(all, { clearProps: 'transform,opacity' });
+        if (wi) gsap.set(wi, { clearProps: 'transform,opacity' });
+      }
+      countUp(s);
+      return;
+    }
+    revealing++;
+    var steps = 0;
+    items.forEach(function (it) { steps += it.lines ? it.lines.length : 1; });
+    var stag = Math.min(STAG, steps > 1 ? STAG_MAX / (steps - 1) : STAG);
+    var tl = gsap.timeline({
+      onComplete: function () {
+        var all = f.els.concat(f.lines);
+        if (all.length) gsap.set(all, { clearProps: 'transform,opacity' });
+        revealing--;
+        if (revealing <= 0 && rebuildPending) rebuild();
+      }
+    });
+    var t = 0;
+    items.forEach(function (it) {
+      if (it.lines) {
+        tl.to(it.lines, { yPercent: 0, duration: IN, ease: 'expo.out', stagger: stag, overwrite: 'auto' }, t);
+        t += stag * it.lines.length;
+      } else {
+        tl.to(it.el, { y: 0, opacity: 1, duration: IN, ease: 'expo.out', overwrite: 'auto' }, t);
+        t += stag;
+      }
+    });
+    if (wi) {
+      var target = parseFloat(window.getComputedStyle(wi).getPropertyValue('--wm-o'));
+      if (isNaN(target)) target = 0.045;
+      if (html.classList.contains('no-field')) target = 0.07;
+      tl.to(wi, { y: 0, opacity: target, duration: 1.1, ease: 'expo.out', overwrite: 'auto', clearProps: 'opacity' }, 0);
+    }
+    tl.call(function () { countUp(s); }, null, 0.05);
+  }
+
+  /* ------------------------------------------------------------ count-up */
+  function countUp(slide) {
+    toArray(slide.querySelectorAll('[data-count]')).forEach(function (el) {
+      if (el.getAttribute('data-done')) return;
+      el.setAttribute('data-done', '1');
+      var raw = el.getAttribute('data-count');
+      var target = parseFloat(raw);
+      if (isNaN(target)) return;
+      var dec = (raw.indexOf('.') >= 0) ? raw.split('.')[1].length : 0;
+      if (reduced || !gsap) { el.textContent = target.toFixed(dec); return; }
+      var obj = { v: 0 };
+      gsap.to(obj, {
+        v: target, duration: 0.9, ease: 'power3.out',
+        onUpdate: function () { el.textContent = obj.v.toFixed(dec); },
+        onComplete: function () { el.textContent = target.toFixed(dec); }
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------ palettes: read from CSS once, lerp per frame */
+  function parseColor(str) {
+    str = (str || '').trim();
+    var m, h, v, a;
+    if ((m = /^#([0-9a-f]{3,8})$/i.exec(str))) {
+      h = m[1];
+      if (h.length === 3 || h.length === 4) h = h.split('').map(function (c) { return c + c; }).join('');
+      v = parseInt(h.slice(0, 6), 16);
+      a = h.length === 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1;
+      return [(v >> 16) & 255, (v >> 8) & 255, v & 255, a];
+    }
+    if ((m = /^rgba?\(([^)]+)\)$/i.exec(str))) {
+      var parts = m[1].split(/[\s,\/]+/).filter(Boolean).map(parseFloat);
+      return [parts[0], parts[1], parts[2], parts.length > 3 ? parts[3] : 1];
+    }
+    var f = parseFloat(str);
+    if (!isNaN(f)) return [f];
+    return null;
+  }
+  function readPalettes() {
+    var cs = window.getComputedStyle(html);
+    var cache = {};
+    var had = html.getAttribute('data-palette');
+    pals = slides.map(function (s) {
+      var id = s.getAttribute('data-palette') || 'p0';
+      if (!cache[id]) {
+        html.setAttribute('data-palette', id);
+        var o = {};
+        TOKENS.forEach(function (k) { o[k] = parseColor(cs.getPropertyValue('--' + k)); });
+        cache[id] = o;
+      }
+      return cache[id];
+    });
+    if (had) html.setAttribute('data-palette', had); else html.removeAttribute('data-palette');
+  }
+  function writePalette(i, t) {
+    var a = pals[i], b = pals[Math.min(i + 1, n - 1)];
+    if (!a || !b) return null;
+    var key = i + ':' + Math.round(t * 512);
+    if (key === lastPalKey) return curPal;
+    lastPalKey = key;
+    TOKENS.forEach(function (k) {
+      var va = a[k], vb = b[k] || a[k];
+      if (!va) return;
+      if (va.length === 1) {
+        var v = va[0] + (vb[0] - va[0]) * t;
+        curPal[k] = [v];
+        html.style.setProperty('--' + k, v.toFixed(3));
+      } else {
+        var r = Math.round(va[0] + (vb[0] - va[0]) * t);
+        var g = Math.round(va[1] + (vb[1] - va[1]) * t);
+        var bl = Math.round(va[2] + (vb[2] - va[2]) * t);
+        var al = va[3] + (vb[3] - va[3]) * t;
+        curPal[k] = [r, g, bl, al];
+        html.style.setProperty('--' + k, 'rgba(' + r + ',' + g + ',' + bl + ',' + al.toFixed(3) + ')');
+      }
+    });
+    return curPal;
   }
 
   /* ------------------------------------------------------------ chrome */
@@ -1959,28 +2094,34 @@ html,body{height:auto;overflow:auto}
       root.addEventListener('click', function (e) {
         var t = e.target;
         while (t && t !== root && !t.hasAttribute('data-index')) t = t.parentNode;
-        if (t && t !== root) { lastInput = 'pointer'; go(parseInt(t.getAttribute('data-index'), 10)); }
+        if (t && t !== root) go(parseInt(t.getAttribute('data-index'), 10));
       });
     }
     delegate(segsEl);
     delegate(railEl);
+    segFill = slides.map(function () { return -1; });
   }
-  function paintPalette(i) {
-    var pal = slides[i].getAttribute('data-palette');
-    if (pal) html.setAttribute('data-palette', pal);
-  }
-  function paintChrome(i, withPalette) {
-    if (withPalette !== false) paintPalette(i);
-    html.setAttribute('data-slide', i);
+  function paintChrome(i, tSeg) {
+    var a = clamp(Math.round(p), 0, n - 1);
     if (segsEl) toArray(segsEl.children).forEach(function (b, k) {
-      b.classList.toggle('active', k === i);
-      b.classList.toggle('visited', !!visited[k] && k !== i);
-      if (k === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+      var fill = k < i ? 1 : (k === i ? tSeg : 0);
+      fill = Math.round(fill * 200) / 200;
+      if (segFill[k] !== fill) { segFill[k] = fill; b.style.setProperty('--fill', fill); }
+      if (k <= a) visited[k] = 1;
+      b.classList.toggle('active', k === a);
+      b.classList.toggle('visited', !!visited[k] && k !== a);
+      if (k === a) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
     });
     if (railEl) toArray(railEl.children).forEach(function (d, k) {
-      d.classList.toggle('active', k === i);
-      if (k === i) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
+      d.classList.toggle('active', k === a);
+      if (k === a) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
     });
+    if (a !== active) {
+      active = a;
+      html.setAttribute('data-slide', a);
+      var pal = slides[a].getAttribute('data-palette');
+      if (pal) html.setAttribute('data-palette', pal);
+    }
   }
 
   /* ------------------------------------------------------------ hash */
@@ -1989,319 +2130,184 @@ html,body{height:auto;overflow:auto}
     if (!h) return -1;
     h = h.replace(/^#/, '');
     if (!h) return -1;
-    for (var i = 0; i < slides.length; i++) if (slides[i].id === h) return i;
+    for (var i = 0; i < n; i++) if (slides[i].id === h) return i;
     var m = /^s?(\d+)$/.exec(h);
-    if (m) { var n = parseInt(m[1], 10); if (n >= 0 && n < slides.length) return n; }
+    if (m) { var k = parseInt(m[1], 10); if (k >= 0 && k < n) return k; }
     return -1;
   }
   function writeHash(i) {
-    var id = slideId(i);
-    try {
-      if (history && history.replaceState) history.replaceState(null, '', '#' + id);
-    } catch (e) {}
+    var id = '#' + slideId(i);
+    if (id === lastHash) return;
+    lastHash = id;
+    try { if (history && history.replaceState) history.replaceState(null, '', id); } catch (e) {}
+  }
+  function scheduleHash() {
+    clearTimeout(hashTimer);
+    hashTimer = setTimeout(function () { writeHash(clamp(Math.round(p), 0, n - 1)); }, HASH_IDLE);
   }
 
-  /* ------------------------------------------------------------ count-up */
-  function countUp(slide) {
-    toArray(slide.querySelectorAll('[data-count]')).forEach(function (el) {
-      if (el.getAttribute('data-done')) return;
-      el.setAttribute('data-done', '1');
-      var raw = el.getAttribute('data-count');
-      var target = parseFloat(raw);
-      if (isNaN(target)) return;
-      var dec = (raw.indexOf('.') >= 0) ? raw.split('.')[1].length : 0;
-      if (reduced || !gsap) { el.textContent = target.toFixed(dec); return; }
-      var obj = { v: 0 };
-      gsap.to(obj, {
-        v: target, duration: 0.9, ease: 'power3.out',
-        onUpdate: function () { el.textContent = obj.v.toFixed(dec); },
-        onComplete: function () { el.textContent = target.toFixed(dec); }
+  /* ------------------------------------------------------------ layout measurement */
+  function docTop(el) {
+    var y = 0;
+    while (el && el !== stage && el !== document.body) { y += el.offsetTop; el = el.offsetParent; }
+    return y;
+  }
+  function barBottom() { return barEl ? barEl.getBoundingClientRect().bottom : 0; }
+  function measure() {
+    vh = window.innerHeight || 1;
+    tops = slides.map(function (s) { return docTop(s); });
+    docH = stage.offsetHeight;
+    if (smooth) document.body.style.height = docH + 'px';
+    maxScroll = Math.max(0, docH - vh);
+    asides = [];
+    var wide = false;
+    try { wide = window.matchMedia('(min-width:900px)').matches; } catch (e) {}
+    if (smooth && wide) {
+      var stick = barBottom() + 16;
+      slides.forEach(function (s) {
+        if (!s.classList.contains('case')) return;
+        var aside = s.querySelector('.aside'), inner = s.querySelector('.inner');
+        if (!aside || !inner) return;
+        asides.push({ el: aside, top: docTop(aside), h: aside.offsetHeight, innerBottom: docTop(inner) + inner.offsetHeight, stick: stick, y: null });
       });
-    });
-  }
-
-  /* ------------------------------------------------------------ navigation */
-  function setLock() {
-    locked = true;
-    clearTimeout(lockTimer);
-    lockTimer = setTimeout(function () { locked = false; }, LOCK);
-  }
-
-  var leaving = [];   // slides still visible while fading out (crossfade / retarget)
-  function finishTransition(next) {
-    var touched = leaving.concat([next]);
-    leaving = [];
-    syncVisibility();
-    if (gsap) {
-      var all = [], panels2 = [], wms = [];
-      touched.forEach(function (s) {
-        var f = flatEls(animItems(s));
-        all = all.concat(f.els, f.lines);
-        panels2.push(panelOf(s));
-        var w = wmOf(s); if (w) wms.push(w);
-      });
-      if (all.length) gsap.set(all, { clearProps: 'transform,opacity' });
-      gsap.set(panels2, { clearProps: 'opacity' });
-      if (wms.length) gsap.set(wms, { clearProps: 'opacity' });
     }
-    tl = null;
-    if (lastInput === 'key') { try { next.focus({ preventScroll: true }); } catch (e) {} }
-    if (rebuildPending) rebuild();
+    dirty = true;
   }
 
-  function handover(to, dir) {
-    paintPalette(to);
-    if (typeof onChange === 'function') { try { onChange(to, dir); } catch (e) {} }
+  /* ------------------------------------------------------------ programmatic scroll */
+  function applyVisual() {
+    if (smooth && cur !== lastApplied) {
+      stage.style.transform = 'translate3d(0,' + (-cur).toFixed(2) + 'px,0)';
+      lastApplied = cur;
+    }
   }
-
-  // Continuous crossfade: the incoming slide is visible from t=0 above the outgoing one; the
-  // outgoing panel fades as a whole while the incoming panel fades in and its content staggers up.
-  // Palette, field morph and watermark fire at HAND, with the content. A new gesture mid-way kills
-  // the running timeline *without* snapping and retargets from the current state.
-  function transition(from, to, dir) {
-    var prev = slides[from], next = slides[to];
-    index = to;
-    visited[to] = 1;
-    paintChrome(to, false);
-    writeHash(to);
-
-    if (reduced || !gsap) {
-      if (tl) { var t0 = tl; tl = null; t0.kill(); }
-      leaving = [];
-      resetPanel(to);
-      handover(to, dir);
-      syncVisibility();
-      countUp(next);
-      if (lastInput === 'key') { try { next.focus({ preventScroll: true }); } catch (e) {} }
+  function killDriver() { if (driver) { driver.kill(); driver = null; } }
+  function scrollToY(y, opts) {
+    opts = opts || {};
+    y = clamp(y, 0, maxScroll);
+    killDriver();
+    if (opts.immediate || reduced || !gsap) {
+      window.scrollTo(0, y);
+      cur = y; dirty = true;
+      applyVisual();
       return;
     }
-
-    if (tl) { var old = tl; tl = null; old.kill(); }
-
-    // Everything visible except the target leaves (prev plus any slide still mid-crossfade).
-    var wasShown = isShown(next);
-    var outs = [];
-    slides.forEach(function (s) { if (s !== next && isShown(s)) outs.push(s); });
-    if (outs.indexOf(prev) < 0) outs.push(prev);
-    leaving = outs;
-    outs.forEach(function (s) { showSlide(s, 'out'); });
-    resetPanel(to);
-    showSlide(next, true);
-
-    var inItems = animItems(next);
-    var inFlat = flatEls(inItems);
-    var inPanel = panelOf(next), inWm = wmOf(next);
-
-    tl = gsap.timeline({ onComplete: function () { finishTransition(next); } });
-
-    // OUT: the whole outgoing panel fades, its content drifts away and heading lines leave their clip.
-    outs.forEach(function (s) {
-      var f = flatEls(animItems(s));
-      var targets = [panelOf(s)];
-      var w = wmOf(s); if (w) targets.push(w);
-      tl.to(targets, { opacity: 0, duration: OUT, ease: 'sine.in', overwrite: 'auto' }, 0);
-      if (f.els.length) tl.to(f.els, { y: -18 * dir, duration: OUT, ease: 'sine.in', stagger: 0.012, overwrite: 'auto' }, 0);
-      if (f.lines.length) tl.to(f.lines, { yPercent: -115 * dir, duration: OUT, ease: 'sine.in', stagger: 0.015, overwrite: 'auto' }, 0);
+    var obj = { y: scrollY() };
+    driveY = obj.y; driveTarget = y;
+    driver = gsap.to(obj, {
+      y: y, duration: opts.duration || GO_DUR, ease: opts.ease || 'power3.out', overwrite: true,
+      onUpdate: function () {
+        window.scrollTo(0, obj.y);
+        driveY = obj.y; cur = obj.y; dirty = true;
+      },
+      onComplete: function () { driver = null; }
     });
+  }
+  function go(i) {
+    if (!n) return;
+    i = clamp(i | 0, 0, n - 1);
+    scrollToY(tops[i]);
+  }
+  function step(d, dur) {
+    var base = driver ? driveTarget : scrollY();
+    scrollToY(base + d, { duration: dur || KEY_DUR });
+  }
 
-    // Pre-state the incoming content (unless it is still on screen from an interrupted transition:
-    // then it continues from where it is).
-    if (!wasShown) {
-      gsap.set(inPanel, { opacity: 0 });
-      if (inFlat.els.length) gsap.set(inFlat.els, { y: 32 * dir, opacity: 0 });
-      if (inFlat.lines.length) gsap.set(inFlat.lines, { yPercent: 115 * dir });
+  /* ------------------------------------------------------------ frame: smoothing + scrub */
+  function frame() {
+    var sy = scrollY();
+    if (driver && Math.abs(sy - driveY) > 1.5) killDriver();   // the user took over
+    if (smooth && !driver) {
+      var k = gsap ? 1 - Math.pow(1 - LERP, gsap.ticker.deltaRatio(60)) : LERP;
+      var d = sy - cur;
+      if (Math.abs(d) < 0.05) cur = sy; else cur += d * k;
+    } else cur = sy;
+    if (cur === lastCur && !dirty) return;
+    dirty = false;
+    if (cur !== lastCur) scheduleHash();
+    lastCur = cur;
+    applyVisual();
+    scrub();
+  }
+  function scrub() {
+    var i = idx;
+    while (i > 0 && tops[i] > cur + 0.5) i--;
+    while (i < n - 1 && tops[i + 1] <= cur + 0.5) i++;
+    idx = i;
+    var t, tSeg;
+    if (i < n - 1) {
+      var span = Math.max(1, Math.min(vh, tops[i + 1] - tops[i]));
+      t = clamp((cur + span - tops[i + 1]) / span, 0, 1);
+      tSeg = t;
+    } else {
+      t = 0;
+      tSeg = clamp((cur - tops[i]) / Math.max(1, maxScroll - tops[i]), 0, 1);
     }
-    tl.to(inPanel, { opacity: 1, duration: 0.5, ease: 'power1.inOut', overwrite: 'auto' }, 0.05);
-    if (inWm) tl.to(inWm, { opacity: 1, duration: 0.5, ease: 'power1.inOut', overwrite: 'auto' }, 0.05);
+    p = i + t;
+    var ts = smoothstep(t);
+    var pal = writePalette(i, ts);
+    paintChrome(i, tSeg);
+    if (typeof onScrub === 'function') { try { onScrub(i, ts, pal); } catch (e) {} }
 
-    tl.call(function () { handover(to, dir); }, null, HAND);
-
-    // IN: staggered reveal in DOM order, total stagger capped so long slides stay ~1.1s.
-    var steps = 0;
-    inItems.forEach(function (it) { steps += it.lines ? it.lines.length : 1; });
-    var stag = Math.min(STAG, steps > 1 ? STAG_MAX / (steps - 1) : STAG);
-    var t = HAND;
-    inItems.forEach(function (it) {
-      if (it.lines) {
-        tl.to(it.lines, { yPercent: 0, duration: IN, ease: 'expo.out', stagger: stag, overwrite: 'auto' }, t);
-        t += stag * it.lines.length;
-      } else {
-        tl.to(it.el, { y: 0, opacity: 1, duration: IN, ease: 'expo.out', overwrite: 'auto' }, t);
-        t += stag;
+    // watermark: scroll parallax (0.25× within its section) plus the pointer offset from the glue
+    if (!reduced) {
+      for (var k = 0; k < n; k++) {
+        var wm = wms[k];
+        if (!wm) continue;
+        var secTop = tops[k] - cur, secH = (k < n - 1 ? tops[k + 1] : docH) - tops[k];
+        if (secTop > vh * 1.5 || secTop + secH < -vh * 0.5) continue;
+        var y = (cur - tops[k]) * WM_PAR + wmy;
+        var tr = 'translate3d(' + wmx.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)';
+        if (wmLast[k] !== tr) { wmLast[k] = tr; wm.style.transform = tr; }
       }
-    });
-    tl.call(function () { countUp(next); }, null, HAND + 0.05);
+    }
+
+    // emulated sticky asides (smoother only: position:sticky cannot work inside the translated stage)
+    for (var q = 0; q < asides.length; q++) {
+      var as = asides[q];
+      var want = clamp(cur + as.stick - as.top, 0, Math.max(0, as.innerBottom - as.h - as.top));
+      want = Math.round(want * 100) / 100;
+      if (as.y !== want) { as.y = want; as.el.style.transform = want ? 'translate3d(0,' + want + 'px,0)' : ''; }
+    }
+
+    // one-time reveals
+    for (var r = 0; r < n; r++) {
+      if (!revealed[r] && tops[r] < cur + vh * REVEAL_AT) reveal(r, true);
+    }
   }
 
-  // Pointer input is never locked: a click during a transition retargets it. Wheel and touch
-  // check `locked` themselves (gesture debounce), and forced/hash navigation never sets it.
-  function go(i, opts) {
-    opts = opts || {};
-    if (!slides.length) return;
-    i = clamp(i | 0, 0, slides.length - 1);
-    if (i === index) return;
-    if (!opts.force) setLock();
-    transition(index, i, sign(i - index));
-  }
-  function next() { go(index + 1); }
-  function prev() { go(index - 1); }
-
-  /* ------------------------------------------------------------ panel helpers (inner scrolling) */
-  function activePanel() { return panels[index] || null; }
-  function resetPanel(i) {
-    var p = panels[i];
-    if (p && p.scrollTop !== 0) p.scrollTop = 0;
-  }
-  function scrollable(p) { return !!p && (p.scrollHeight - p.clientHeight > 1); }
-  function atTop(p) { return p.scrollTop <= 0; }
-  function atBottom(p) { return p.scrollTop + p.clientHeight >= p.scrollHeight - 1; }
-  var lastPanelScroll = 0;
-  function markPanelScroll() { lastPanelScroll = now(); }
-
-  /* ------------------------------------------------------------ wheel */
-  var wAcc = 0, wLast = 0, wArmed = true, wFiredAt = 0, quietSince = 0, rearmTimer = 0;
-
+  /* ------------------------------------------------------------ input */
   function normDelta(e) {
     var d = e.deltaY;
     if (e.deltaMode === 1) d *= 16;
-    else if (e.deltaMode === 2) d *= window.innerHeight;
+    else if (e.deltaMode === 2) d *= vh;
     return d;
   }
-  function scheduleRearm() {
-    clearTimeout(rearmTimer);
-    rearmTimer = setTimeout(function () {
-      var t = now();
-      if (t - wFiredAt >= LOCK) { wArmed = true; wAcc = 0; }
-      else scheduleRearm();
-    }, Math.max(QUIET_MS, LOCK - (now() - wFiredAt)) + 10);
-  }
-  function fireWheel(dir) {
-    wAcc = 0;
-    wArmed = false;
-    wFiredAt = now();
-    quietSince = 0;
-    scheduleRearm();
-    lastInput = 'wheel';
-    go(index + dir);
-  }
+  var lastKick = 0;
   function onWheel(e) {
+    if (driver) killDriver();
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
     var dy = normDelta(e);
     var t = now();
-    var p = activePanel();
-
-    // After a wheel-triggered change the wheel is swallowed entirely (no slide change, no panel
-    // scroll) until LOCK has passed AND the deltas have been near zero for QUIET_MS, so the tail
-    // of a trackpad gesture neither fires twice nor scrolls the slide that has just arrived.
-    if (!wArmed) {
-      e.preventDefault();
-      if (Math.abs(dy) < WHEEL_QUIET) {
-        if (!quietSince) quietSince = t;
-        if (t - wFiredAt >= LOCK && t - quietSince >= QUIET_MS) { wArmed = true; wAcc = 0; }
-      } else {
-        quietSince = 0;
-        scheduleRearm();
-      }
-      return;
-    }
-
-    // Inner scrolling: a scrollable panel that is not at its edge consumes the wheel.
-    if (scrollable(p)) {
-      var canScroll = dy > 0 ? !atBottom(p) : !atTop(p);
-      if (canScroll) {
-        var inside = (e.target && e.target.nodeType === 1) ? p.contains(e.target) : false;
-        if (!inside) { e.preventDefault(); p.scrollTop += dy; markPanelScroll(); }
-        wAcc = 0;
-        return;
-      }
-    }
-    e.preventDefault();
-    if (locked) return;
-    if (t - lastPanelScroll < EDGE_GRACE) return;
-    if (t - wLast > GESTURE_GAP) wAcc = 0;
-    wLast = t;
-    wAcc += dy;
-    if (Math.abs(wAcc) > WHEEL_FIRE) fireWheel(sign(wAcc));
-  }
-
-  /* ------------------------------------------------------------ touch */
-  var tStart = null;
-  function onTouchStart(e) {
-    if (e.touches.length !== 1) { tStart = null; return; }
-    var p = activePanel();
-    tStart = {
-      x: e.touches[0].clientX, y: e.touches[0].clientY, t: now(),
-      scrollTop: p ? p.scrollTop : 0,
-      canScroll: scrollable(p), top: p ? atTop(p) : true, bottom: p ? atBottom(p) : true
-    };
-  }
-  function onTouchEnd(e) {
-    if (!tStart) return;
-    var s = tStart; tStart = null;
-    var touch = e.changedTouches && e.changedTouches[0];
-    if (!touch) return;
-    var dx = touch.clientX - s.x, dy = touch.clientY - s.y;
-    var dt = Math.max(1, now() - s.t);
-    if (Math.abs(dx) > Math.abs(dy)) return;
-    var p = activePanel();
-    if (s.canScroll) {
-      if (p && Math.abs(p.scrollTop - s.scrollTop) > 2) return;     // the panel scrolled instead
-      if (dy < 0 && !s.bottom) return;                               // swiping up but panel not at bottom
-      if (dy > 0 && !s.top) return;                                  // swiping down but panel not at top
-    }
-    var v = dy / dt; // px/ms, negative = upwards = forward
-    if (Math.abs(dy) > SWIPE_PX || Math.abs(v) > SWIPE_V) {
-      if (typeof onSwipeVelocity === 'function') {
-        try { onSwipeVelocity(clamp(-v / 1.5, -1, 1)); } catch (err) {}
-      }
-      if (locked) return;
-      lastInput = 'touch';
-      go(index + (dy < 0 ? 1 : -1));
+    if (Math.abs(dy) >= KICK_MIN && t - lastKick > KICK_GAP && typeof onSwipeVelocity === 'function') {
+      lastKick = t;
+      try { onSwipeVelocity(clamp(dy / 900, -1, 1)); } catch (err) {}
     }
   }
-
-  /* ------------------------------------------------------------ keys */
   function onKey(e) {
     if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
     var tgt = e.target;
     if (isEditable(tgt)) return;
     var k = e.key;
-    var onControl = isControl(tgt);
-    if (onControl && (k === ' ' || k === 'j' || k === 'k')) return;   // let buttons/links take space & letters
-
-    var p = activePanel();
-    var step = p ? Math.max(80, p.clientHeight * 0.8) : 0;
-    function panelScroll(amount) {
-      if (!scrollable(p)) return false;
-      if (amount > 0 && atBottom(p)) return false;
-      if (amount < 0 && atTop(p)) return false;
-      e.preventDefault();
-      if (reduced) p.scrollTop += amount;
-      else try { p.scrollBy({ top: amount, behavior: 'smooth' }); } catch (err) { p.scrollTop += amount; }
-      markPanelScroll();
-      return true;
-    }
-    lastInput = 'key';
-    if (k === 'ArrowDown' || k === 'j') {
-      if (panelScroll(80)) return;
-      e.preventDefault(); next();
-    } else if (k === 'ArrowUp' || k === 'k') {
-      if (panelScroll(-80)) return;
-      e.preventDefault(); prev();
-    } else if (k === 'PageDown' || (k === ' ' && !e.shiftKey)) {
-      if (panelScroll(step)) return;
-      e.preventDefault(); next();
-    } else if (k === 'PageUp' || (k === ' ' && e.shiftKey)) {
-      if (panelScroll(-step)) return;
-      e.preventDefault(); prev();
-    } else if (k === 'Home') {
-      e.preventDefault(); go(0, { force: true });
-    } else if (k === 'End') {
-      e.preventDefault(); go(slides.length - 1, { force: true });
-    }
+    if (isControl(tgt) && (k === ' ' || k === 'j' || k === 'k')) return;   // buttons/links keep space & letters
+    var s = vh * STEP;
+    if (k === 'ArrowDown' || k === 'j') { e.preventDefault(); step(s); }
+    else if (k === 'ArrowUp' || k === 'k') { e.preventDefault(); step(-s); }
+    else if (k === 'PageDown' || (k === ' ' && !e.shiftKey)) { e.preventDefault(); step(s); }
+    else if (k === 'PageUp' || (k === ' ' && e.shiftKey)) { e.preventDefault(); step(-s); }
+    else if (k === 'Home') { e.preventDefault(); scrollToY(0); }
+    else if (k === 'End') { e.preventDefault(); scrollToY(maxScroll); }
   }
-
-  /* ------------------------------------------------------------ clicks: [data-go], anchors to slide ids */
   function onClick(e) {
     var t = e.target;
     while (t && t !== document && !(t.hasAttribute && (t.hasAttribute('data-go') || (t.tagName === 'A' && /^#/.test(t.getAttribute('href') || ''))))) t = t.parentNode;
@@ -2312,22 +2318,30 @@ html,body{height:auto;overflow:auto}
       i = /^\d+$/.test(v) ? parseInt(v, 10) : indexFromHash(v);
     } else {
       i = indexFromHash(t.getAttribute('href'));
-      if (i < 0) return;
     }
     if (i < 0) return;
     e.preventDefault();
-    lastInput = 'pointer';
     go(i);
+  }
+  // Under the smoother the browser cannot scroll a focused element into view (it sits in a fixed,
+  // translated wrapper), so keyboard focus (Tab) is followed by hand.
+  function onFocusIn(e) {
+    if (!smooth) return;
+    var el = e.target;
+    if (!el || !el.getBoundingClientRect || el === document.body) return;
+    if (barEl && barEl.contains(el)) return;
+    if (railEl && railEl.contains(el)) return;
+    var r = el.getBoundingClientRect();
+    var top = barBottom() + 12;
+    if (r.top >= top && r.bottom <= vh - 12) return;
+    scrollToY(cur + r.top - Math.min(vh * 0.3, Math.max(top, vh - r.height - 24)), { duration: 0.6 });
   }
 
   /* ------------------------------------------------------------ case layer depth stack */
-  var barEl = null;
   function setInert(el, on) {
     if ('inert' in el) el.inert = on;
     if (on) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden');
   }
-  // Header semantics: a done card's header is the button that re-opens it; the active and
-  // locked headers are headings (nothing to activate), out of the tab order.
   function setHeader(lk, state, open) {
     if (state === 'done') {
       lk.setAttribute('role', 'button');
@@ -2341,37 +2355,28 @@ html,body{height:auto;overflow:auto}
       lk.tabIndex = -1;
     }
   }
-
-  function setupCase(c, slideIndex) {
+  function setupCase(c) {
     var layers = toArray(c.querySelectorAll('.layer'));
     var btn = c.querySelector('.reveal');
     var key = c.getAttribute('data-lesson');
-    var panel = panels[slideIndex];
     if (!layers.length) return;
-    var idx = unlocked[key] ? layers.length - 1 : 0;
+    var i = unlocked[key] ? layers.length - 1 : 0;
 
     function anyOpen() {
-      for (var i = 0; i < layers.length; i++) if (layers[i].classList.contains('open')) return true;
+      for (var k = 0; k < layers.length; k++) if (layers[k].classList.contains('open')) return true;
       return false;
     }
-
-    // `flow`: a done card is re-opened, so the stack is laid out as a plain column (CSS :has(.open))
-    // and every card sits flat at its natural position; nothing covers the active card.
     function style(l, k, animate, flow) {
       var state = l.getAttribute('data-state');
       var open = l.classList.contains('open');
       var props, interactive = true;
       if (flow) {
-        if (state === 'locked') {
-          interactive = false;
-          props = { scale: 1, y: 0, opacity: 0.35, zIndex: 1 };
-        } else {
-          props = { scale: 1, y: 0, opacity: 1, zIndex: open ? 3 : 2 };
-        }
+        if (state === 'locked') { interactive = false; props = { scale: 1, y: 0, opacity: 0.35, zIndex: 1 }; }
+        else props = { scale: 1, y: 0, opacity: 1, zIndex: open ? 3 : 2 };
       } else if (state === 'active') {
         props = { scale: 1, y: 0, opacity: 1, zIndex: layers.length + 2 };
       } else if (state === 'done') {
-        var d = idx - k;                           // 1 = most recent
+        var d = i - k;
         var hidden = d > MAX_DONE_VISIBLE;
         interactive = !hidden;
         props = { scale: 0.96, y: -24 * d, opacity: hidden ? 0 : 0.55, zIndex: layers.length - d };
@@ -2381,96 +2386,75 @@ html,body{height:auto;overflow:auto}
       }
       l.style.pointerEvents = interactive ? '' : 'none';
       l.style.cursor = state === 'done' ? 'pointer' : '';
-      if (reduced || !gsap) {
-        l.style.zIndex = props.zIndex;
-        return;
-      }
+      if (reduced || !gsap) { l.style.zIndex = props.zIndex; return; }
       props.transformOrigin = '50% 0%';
-      if (animate) {
-        props.duration = 0.55;
-        props.ease = 'expo.out';
-        props.overwrite = 'auto';
-        gsap.to(l, props);
-      } else {
-        gsap.set(l, props);
-      }
+      if (animate) { props.duration = 0.55; props.ease = 'expo.out'; props.overwrite = 'auto'; gsap.to(l, props); }
+      else gsap.set(l, props);
     }
     function restyle(animate) {
       var flow = anyOpen();
       layers.forEach(function (l, k) { style(l, k, animate, flow); });
     }
-    // FLIP the stack's height around a layout change so everything below it (the Reveal control)
-    // slides instead of jumping; padding/state changes themselves are instant (no layout transitions).
+    // FLIP the stack's height around a layout change so everything below it (the Reveal control and
+    // the rest of the page) slides instead of jumping.
     var stack = layers[0].parentNode;
     function flipHeight(change) {
-      if (reduced || !gsap) { change(); return; }
+      if (reduced || !gsap) { change(); measure(); return; }
       var h0 = stack.offsetHeight;
       change();
       var h1 = stack.offsetHeight;
-      if (Math.abs(h1 - h0) < 1) return;
-      gsap.fromTo(stack, { height: h0 }, { height: h1, duration: 0.55, ease: 'expo.out', overwrite: true, clearProps: 'height' });
+      if (Math.abs(h1 - h0) < 1) { measure(); return; }
+      gsap.fromTo(stack, { height: h0 }, { height: h1, duration: 0.55, ease: 'expo.out', overwrite: true, clearProps: 'height', onUpdate: measure, onComplete: measure });
     }
-
     function paint(animate) {
       layers.forEach(function (l, k) {
-        var state = k < idx ? 'done' : (k === idx ? 'active' : 'locked');
+        var state = k < i ? 'done' : (k === i ? 'active' : 'locked');
         l.setAttribute('data-state', state);
-        if (k !== idx) l.classList.remove('open');
+        if (k !== i) l.classList.remove('open');
         var lk = l.querySelector('.lk');
         if (lk) setHeader(lk, state, false);
         setInert(l, state === 'locked');
       });
       restyle(animate);
       if (!btn) return;
-      if (idx < layers.length - 1) {
-        btn.textContent = 'Reveal ' + (layers[idx + 1].getAttribute('data-key') || 'next') + ' →';
+      if (i < layers.length - 1) {
+        btn.textContent = 'Reveal ' + (layers[i + 1].getAttribute('data-key') || 'next') + ' →';
         btn.disabled = false;
       } else {
         btn.textContent = 'Lesson ' + key + ' unlocked ✓';
         btn.disabled = true;
       }
     }
-
-    // Scroll the active card into view, keeping it clear of the fixed bar and leaving room above it
-    // for the receded done cards (24px per visible done card) so the stack never slides under the bar.
-    // Measured once the reveal tween and the stack's padding transition have settled (both 550ms),
-    // so the card's rect is its final geometry, not a mid-animation scaled one.
-    function scrollActiveIntoView() {
-      if (!panel) return;
-      var l = layers[idx];
-      requestAnimationFrame(measure);
-      function measure() {
-        // The card's top is final right away (the stack's padding is instant); its height is read
-        // unscaled because the entrance tween is still at scale .94.
-        var pr = panel.getBoundingClientRect(), r0 = l.getBoundingClientRect();
-        var lr = { top: r0.top, height: l.offsetHeight, bottom: r0.top + l.offsetHeight };
-        var barBottom = barEl ? Math.max(0, barEl.getBoundingClientRect().bottom - pr.top) : 0;
-        var padTop = Math.max(24, barBottom + 16) + 24 * Math.min(idx, MAX_DONE_VISIBLE);
+    // Ease the active card into view (v1 logic on the window): clear of the bar, with room above for
+    // the receded done cards; when the card fits, it is aligned to the bottom so the Reveal control
+    // below it stays visible. Measured on the next frame: the card's top is final right away, its
+    // height is read unscaled (the entrance tween is still at scale .94).
+    function keepActiveVisible() {
+      var l = layers[i];
+      var later = gsap ? function (fn) { gsap.delayedCall(0.02, fn); } : function (fn) { window.requestAnimationFrame(fn); };
+      later(function () {
+        var top = l.getBoundingClientRect().top, h = l.offsetHeight, bottom = top + h;
+        var padTop = Math.max(24, barBottom() + 16) + 24 * Math.min(i, MAX_DONE_VISIBLE);
         var padBottom = 24;
-        var inView = lr.top >= pr.top + padTop && lr.bottom <= pr.bottom - padBottom;
-        if (inView) return;
-        var fits = lr.height + padTop + padBottom <= pr.height;
-        var top = panel.scrollTop + (lr.top - pr.top) - padTop;
-        var target = (fits && lr.bottom > pr.bottom - padBottom && lr.top >= pr.top + padTop)
-          ? panel.scrollTop + (lr.bottom - pr.bottom) + padBottom
-          : top;
-        target = clamp(target, 0, Math.max(0, panel.scrollHeight - panel.clientHeight));
-        markPanelScroll();
-        if (reduced) panel.scrollTop = target;
-        else try { panel.scrollTo({ top: target, behavior: 'smooth' }); } catch (e) { panel.scrollTop = target; }
-      }
+        if (top >= padTop && bottom <= vh - padBottom) return;
+        var fits = h + padTop + padBottom <= vh;
+        var target = (fits && bottom > vh - padBottom && top >= padTop)
+          ? cur + (bottom - vh) + padBottom
+          : cur + top - padTop;
+        scrollToY(target, { duration: 0.8 });
+      });
     }
 
     paint(false);
     var busyUntil = 0;
     if (btn) btn.addEventListener('click', function () {
-      if (idx >= layers.length - 1) return;
-      if (now() < busyUntil) return;          // one reveal per 350ms: a double press cannot desync the stack
+      if (i >= layers.length - 1) return;
+      if (now() < busyUntil) return;
       busyUntil = now() + 350;
-      idx++;
+      i++;
       flipHeight(function () { paint(true); });
-      scrollActiveIntoView();
-      if (idx === layers.length - 1) unlock(key);
+      keepActiveVisible();
+      if (i === layers.length - 1) unlock(key);
     });
     layers.forEach(function (l) {
       var target = l.querySelector('.lk') || l;
@@ -2499,65 +2483,75 @@ html,body{height:auto;overflow:auto}
   function init(opts) {
     opts = opts || {};
     slides = toArray(opts.slides || document.querySelectorAll('.slide'));
+    n = slides.length;
     reduced = !!opts.reduced;
-    onChange = opts.onChange || null;
+    onScrub = opts.onScrub || null;
+    onEnter = opts.onEnter || null;
     onUnlock = opts.onUnlock || null;
     onSwipeVelocity = opts.onSwipeVelocity || null;
     gsap = window.gsap;
-    if (!slides.length) return Deck;
+    if (!n) return Deck;
+
+    stage = slides[0].parentNode;
+    barEl = document.querySelector('.bar');
+    wms = slides.map(function (s) { return s.querySelector('.wm'); });
+    revealed = slides.map(function () { return false; });
+
+    var coarse = false;
+    try { coarse = window.matchMedia('(pointer: coarse)').matches; } catch (e) {}
+    smooth = !!gsap && !reduced && !coarse && opts.smooth !== false;
 
     html.classList.add('js');
     html.classList.toggle('reduced', reduced);
-    barEl = document.querySelector('.bar');
-    panels = slides.map(function (s) {
-      var p = s.querySelector('.panel') || s;
-      p.addEventListener('scroll', markPanelScroll, { passive: true });
-      return p;
-    });
+    html.classList.toggle('smooth', smooth);
+    try { if (history && 'scrollRestoration' in history && smooth) history.scrollRestoration = 'manual'; } catch (e) {}
+
     slides.forEach(function (s, i) {
       if (!s.hasAttribute('tabindex')) s.setAttribute('tabindex', '-1');
       s.setAttribute('data-index', i);
     });
 
-    // Starting slide from the hash (no animation).
-    var start = indexFromHash(location.hash);
-    index = start >= 0 ? start : 0;
-    visited[index] = 1;
-
+    readPalettes();
     buildChrome();
-    rebuild();
+    toArray(document.querySelectorAll('.slide .lines')).forEach(function (el) { try { splitLines(el); } catch (e) {} });
     lastWidth = window.innerWidth;
-    syncVisibility();
-    paintChrome(index);
-    if (start >= 0) writeHash(index);
-
-    toArray(document.querySelectorAll('.case')).forEach(function (c) {
-      var s = c.classList.contains('slide') ? c : (function (n) { while (n && !n.classList.contains('slide')) n = n.parentNode; return n; })(c);
-      setupCase(c, slides.indexOf(s));
-    });
+    toArray(document.querySelectorAll('.case')).forEach(setupCase);
     paintLessons();
-    countUp(slides[index]);
+    measure();
 
-    // Flush styles with the initial data-state values applied, then enable the stack's padding
-    // transition: a returning visitor must not see the receded cards animate into place on load.
+    // Starting position: the hash target, without animation.
+    var start = indexFromHash(location.hash);
+    if (start >= 0) { scrollToY(tops[start], { immediate: true }); lastHash = '#' + slideId(start); }
+    else cur = scrollY();
+    applyVisual();
+
+    // Sections already past the reveal line show at once; the rest wait, hidden, for their entrance.
+    slides.forEach(function (s, k) {
+      if (tops[k] < cur + vh * REVEAL_AT) reveal(k, false); else prestate(k);
+    });
+
     void document.body.offsetHeight;
     html.classList.add('ready');
 
     // Input
-    window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchend', onTouchEnd, { passive: true });
-    window.addEventListener('touchcancel', function () { tStart = null; }, { passive: true });
+    window.addEventListener('wheel', onWheel, { passive: true });
+    window.addEventListener('touchstart', function () { if (driver) killDriver(); }, { passive: true });
     document.addEventListener('keydown', onKey);
     document.addEventListener('click', onClick);
+    document.addEventListener('focusin', onFocusIn);
     window.addEventListener('hashchange', function () {
       var i = indexFromHash(location.hash);
-      if (i >= 0 && i !== index) { lastInput = 'pointer'; go(i, { force: true }); }
+      if (i >= 0) { lastHash = location.hash; go(i); }
     });
 
-    // Rebuild lines when the width changes or fonts finish loading.
+    // Layout: document height (smoother) and section tops follow the stage's size.
+    if (window.ResizeObserver) {
+      var ro = new ResizeObserver(function () { measure(); });
+      ro.observe(stage);
+    }
     var rt = 0;
     window.addEventListener('resize', function () {
+      measure();
       clearTimeout(rt);
       rt = setTimeout(function () {
         if (window.innerWidth !== lastWidth) { lastWidth = window.innerWidth; rebuild(); }
@@ -2565,20 +2559,29 @@ html,body{height:auto;overflow:auto}
     });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { rebuild(); }).catch(function () {});
 
-    if (typeof onChange === 'function') { try { onChange(index, 0); } catch (e) {} }
+    // Frame loop
+    if (gsap) gsap.ticker.add(frame);
+    else (function loop() { frame(); window.requestAnimationFrame(loop); })();
+    frame();
     return Deck;
   }
 
   var Deck = {
     init: init,
-    go: function (i, opts) { lastInput = 'pointer'; go(i, opts); },
-    next: function () { lastInput = 'pointer'; next(); },
-    prev: function () { lastInput = 'pointer'; prev(); },
+    go: go,
+    next: function () { go(Math.round(p) + 1); },
+    prev: function () { go(Math.round(p) - 1); },
+    scrollTo: function (y, opts) { scrollToY(y, opts); },
+    getScroll: function () { return cur; },
+    setWmOffset: function (x, y) { wmx = +x || 0; wmy = +y || 0; dirty = true; },
     rebuild: rebuild,
+    measure: measure,
+    frame: frame,
     unlocked: function () { return Object.keys(unlocked); },
-    get index() { return index; },
-    get count() { return slides.length; },
-    get locked() { return locked; }
+    get index() { return clamp(Math.round(p), 0, n - 1); },
+    get progress() { return p; },
+    get count() { return n; },
+    get smooth() { return smooth; }
   };
   window.Deck = Deck;
 })(window, document);
@@ -2591,9 +2594,6 @@ html,body{height:auto;overflow:auto}
   var Field = window.Field || null;
   var Deck = window.Deck || null;
 
-  /* Palettes (from spec.json): g/acc/ink go to Field.setPalette, alpha to Field.setAlpha. */
-  var PAL = {"p0":{"g":"#0A0C2A","acc":"#F5B942","ink":"#F6F3EC","alpha":0.55},"p1":{"g":"#052A31","acc":"#72E6DA","ink":"#EEF8F6","alpha":0.5},"p2":{"g":"#24100F","acc":"#FF8F6B","ink":"#F8F0EC","alpha":0.48},"p3":{"g":"#071D3D","acc":"#82C3FF","ink":"#EDF4FB","alpha":0.5},"p4":{"g":"#0F2817","acc":"#C2EC72","ink":"#F0F7EC","alpha":0.46},"p5":{"g":"#29200B","acc":"#F9D566","ink":"#FAF4E6","alpha":0.44},"p6":{"g":"#211436","acc":"#DCB0FF","ink":"#F6F0FB","alpha":0.52},"p7":{"g":"#10171D","acc":"#8FE6B7","ink":"#EEF3F1","alpha":0.42},"p8":{"g":"#082623","acc":"#F3B53F","ink":"#F3F2EC","alpha":0.4},"p9":{"g":"#2A1552","acc":"#FFC94D","ink":"#FBF6EC","alpha":0.85}};
-
   var reduced = false;
   try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
 
@@ -2605,36 +2605,17 @@ html,body{height:auto;overflow:auto}
   try { hasField = !!(Field && Field.init(canvas, { reduced: reduced })); } catch (e) { hasField = false; }
   if (!hasField) html.classList.add('no-field');
 
-  var alphaObj = { v: 0.55 };
-  function applyPalette(i, immediate) {
-    var s = slides[i];
-    var id = (s && s.getAttribute('data-palette')) || 'p0';
-    var p = PAL[id] || PAL.p0;
-    html.setAttribute('data-palette', id);
-    if (!hasField) return;
-    Field.setPalette({ g: p.g, acc: p.acc, ink: p.ink });
-    if (immediate || !gsap) {
-      alphaObj.v = p.alpha;
-      Field.setAlpha(p.alpha);
-    } else {
-      gsap.to(alphaObj, { v: p.alpha, duration: 0.7, ease: 'power2.inOut', overwrite: true, onUpdate: function () { Field.setAlpha(alphaObj.v); } });
-    }
-  }
-
-  /* ---------- L2: watermark enter + parallax ---------- */
+  /* ---------- scroll scrub: the deck lerps the palette tokens (from the CSS) and hands them over
+     every frame; the field morphs between shapes i and i+1 by the same t. ---------- */
   var isCase = slides.map(function (s) { return s.classList.contains('case'); });
-  var wms = slides.map(function (s) { return s.querySelector('.wm'); });
-  var wmIns = slides.map(function (s) { return s.querySelector('.wm-in'); });
   var current = 0;
-  function enterWatermark(i) {
-    var el = wmIns[i];
-    if (!el) return;
-    if (reduced || !gsap) return;
-    var target = parseFloat(window.getComputedStyle(el).opacity);
-    if (isNaN(target)) target = 0.045;
-    gsap.killTweensOf(el);
-    // Fired by the deck at the handover, so no extra delay: it rises with the content.
-    gsap.fromTo(el, { y: 120, opacity: 0 }, { y: 0, opacity: target, duration: 1.0, ease: 'expo.out', overwrite: 'auto', clearProps: 'opacity' });
+  function onScrub(i, t, pal) {
+    current = i;
+    if (!hasField) return;
+    var fp = null;
+    if (pal && pal.acc && pal.ink) fp = { acc: pal.acc, ink: pal.ink };
+    Field.setScrub(i, t, fp);
+    if (pal && pal.falpha) Field.setAlpha(pal.falpha[0]);
   }
 
   /* ---------- lessons counter flash ---------- */
@@ -2664,13 +2645,8 @@ html,body{height:auto;overflow:auto}
     Deck.init({
       slides: slides,
       reduced: reduced,
-      onChange: function (i, dir) {
-        current = i;
-        applyPalette(i, dir === 0);
-        if (hasField) Field.setScene(i, dir === 0 ? { immediate: true } : undefined);
-        if (dir !== 0) enterWatermark(i);
-        if (typeof startLoop === 'function') startLoop();
-      },
+      onScrub: onScrub,
+      onEnter: function () { if (typeof startLoop === 'function') startLoop(); },
       onUnlock: function () {
         if (hasField) Field.pulse();
         flashCounter();
@@ -2681,7 +2657,6 @@ html,body{height:auto;overflow:auto}
     });
   } else {
     html.classList.add('js');
-    applyPalette(0, true);
   }
 
   /* ---------- pointer: field parallax, watermark parallax (inverse), magnetic cursor ---------- */
@@ -2763,8 +2738,7 @@ html,body{height:auto;overflow:auto}
     var tx = -px * 48 * k, ty = -py * 48 * k;
     wx += (tx - wx) * 0.08;
     wy += (ty - wy) * 0.08;
-    var wm = wms[current];
-    if (wm && !reduced) wm.style.transform = 'translate3d(' + wx.toFixed(2) + 'px,' + wy.toFixed(2) + 'px,0)';
+    if (Deck && !reduced) Deck.setWmOffset(wx, wy);
 
     var busy = false;
     if (cursorOn) {
@@ -2833,9 +2807,6 @@ html,body{height:auto;overflow:auto}
       if (window.innerWidth < 820 && cursorOn) { html.classList.remove('cursor-on'); cursorOn = false; releaseMagnet(); }
     });
   }
-
-  // Watermark for the first slide: static if reduced, otherwise a gentle rise on load.
-  if (!reduced && gsap) enterWatermark(current);
 
   // Re-split heading lines once the web fonts have arrived.
   if (Deck && document.fonts && document.fonts.ready) {
