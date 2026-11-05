@@ -14,8 +14,8 @@
     <text x="80" y="470" font-weight="700" font-size="40">&gt;80%</text>
     <text x="80" y="508" font-size="20" fill="#A6A395">faster to log a maintenance request</text>
 
-    <text x="470" y="470" font-weight="700" font-size="40">~4 h/day</text>
-    <text x="470" y="508" font-size="20" fill="#A6A395">of manual reporting eliminated</text>
+    <text x="470" y="470" font-weight="700" font-size="40">~80 h/mo</text>
+    <text x="470" y="508" font-size="20" fill="#A6A395">of manual data work removed</text>
 
     <text x="840" y="470" font-weight="700" font-size="40">5,199 / 0</text>
     <text x="840" y="508" font-size="20" fill="#A6A395">records processed / errors</text>
